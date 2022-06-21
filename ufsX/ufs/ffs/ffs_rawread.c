@@ -207,7 +207,7 @@ ffs_rawread_readahead(struct vnode *vp,
 		if (iolen != 0)
 			buf_count(bp) -= PAGE_SIZE;
 	}
-	bp->b_flags = 0;	/* XXX necessary ? */
+	buf_flags(bp) = 0;	/* XXX necessary ? */
 	bp->b_iocmd = BIO_READ;
 	bp->b_iodone = bdone;
 	blockno = offset / bsize;
@@ -235,8 +235,8 @@ ffs_rawread_readahead(struct vnode *vp,
 
 		/* Mark operation completed (similar to buf_biodone()) */
 
-		bp->b_resid = 0;
-		bp->b_flags |= B_DONE;
+		buf_resid(bp) = 0;
+		buf_flags(bp) |= B_DONE;
 		return 0;
 	}
 	bp->b_blkno = blkno + blockoff;
@@ -321,7 +321,7 @@ ffs_rawread_main(struct vnode *vp,
 		bwait(bp, PRIBIO, "rawrd");
 		vunmapbuf(bp);
 		
-		iolen = buf_count(bp) - bp->b_resid;
+		iolen = buf_count(bp) - buf_resid(bp);
 		if (iolen == 0 && (bp->b_ioflags & BIO_ERROR) == 0) {
 			nerror = 0;	/* Ignore possible beyond EOF error */
 			break; /* EOF */

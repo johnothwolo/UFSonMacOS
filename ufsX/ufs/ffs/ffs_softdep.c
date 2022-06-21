@@ -3810,7 +3810,7 @@ softdep_process_journal(mp, needwk, flags)
 		 */
 		cnt = ump->softdep_on_journal;
 		if (cnt + jblocks->jb_needseg == 0 || jblocks->jb_free == 0) {
-			bp->b_flags |= B_INVAL | B_NOCACHE;
+			buf_flags(bp) |= B_INVAL | B_NOCACHE;
 			WORKITEM_FREE(jseg, D_JSEG);
 			FREE_LOCK(ump);
 			buf_brelse(bp);
@@ -3836,8 +3836,8 @@ softdep_process_journal(mp, needwk, flags)
 		buf_lblkno(bp) = bp->b_blkno;
 		bp->b_offset = bp->b_blkno * DEV_BSIZE;
 		buf_count(bp) = size;
-		bp->b_flags &= ~B_INVAL;
-		bp->b_flags |= B_VALIDSUSPWRT | B_NOCOPY;
+		buf_flags(bp) &= ~B_INVAL;
+		buf_flags(bp) |= B_VALIDSUSPWRT | B_NOCOPY;
 		/*
 		 * Initialize our jseg with cnt records.  Assign the next
 		 * sequence number to it and link it in-order.
@@ -4089,7 +4089,7 @@ handle_written_jseg(jseg, bp)
 	 * We'll never need this buffer again, set flags so it will be
 	 * discarded.
 	 */
-	bp->b_flags |= B_INVAL | B_NOCACHE;
+	buf_flags(bp) |= B_INVAL | B_NOCACHE;
 	pbrelvp(bp);
 	complete_jsegs(jseg);
 }
@@ -5684,7 +5684,7 @@ softdep_setup_allocdirect(ip, off, newblkno, oldblkno, newsize, oldsize, bp)
 		 * that had been written.
 		 */
 		freefrag = newfreefrag(ip, oldblkno, oldsize, lbn,
-		    (bp->b_flags & B_DELWRI) != 0 ? NOTRIM_KEY : SINGLETON_KEY);
+		    (buf_flags(bp) & B_DELWRI) != 0 ? NOTRIM_KEY : SINGLETON_KEY);
 	else
 		freefrag = NULL;
 
@@ -6088,7 +6088,7 @@ softdep_setup_allocext(ip, off, newblkno, oldblkno, newsize, oldsize, bp)
 		 * that had been written.
 		 */
 		freefrag = newfreefrag(ip, oldblkno, oldsize, lbn,
-		    (bp->b_flags & B_DELWRI) != 0 ? NOTRIM_KEY : SINGLETON_KEY);
+		    (buf_flags(bp) & B_DELWRI) != 0 ? NOTRIM_KEY : SINGLETON_KEY);
 	else
 		freefrag = NULL;
 
@@ -7073,7 +7073,7 @@ softdep_journal_freeblocks(ip, cred, length, flags)
 		return;
 	}
 	if (bp->b_bufsize == fs->fs_bsize)
-		bp->b_flags |= B_CLUSTEROK;
+		buf_flags(bp) |= B_CLUSTEROK;
 	softdep_update_inodeblock(ip, bp, 0);
 	if (ump->um_fstype == UFS1) {
 		*((struct ufs1_dinode *)buf_dataptr(bp) +
@@ -7569,7 +7569,7 @@ cleanrestart:
 			allocbuf(bp, blkoff);
 			buf_qrelse(bp);
 		} else {
-			bp->b_flags |= B_INVAL | B_NOCACHE | B_RELBUF;
+			buf_flags(bp) |= B_INVAL | B_NOCACHE | B_RELBUF;
 			buf_brelse(bp);
 		}
 		BO_LOCK(bo);
@@ -7735,7 +7735,7 @@ done:
 		bp->b_vflags |= BV_SCANNED;
 		return (EBUSY);
 	}
-	bp->b_flags |= B_INVAL | B_NOCACHE;
+	buf_flags(bp) |= B_INVAL | B_NOCACHE;
 
 	return (0);
 }
@@ -8653,7 +8653,7 @@ indir_trunc(freework, dbn, lbn)
 	}
 	ffs_blkrelease_finish(ump, key);
 	if (goingaway) {
-		bp->b_flags |= B_INVAL | B_NOCACHE;
+		buf_flags(bp) |= B_INVAL | B_NOCACHE;
 		buf_brelse(bp);
 	}
 	freedblocks = 0;
@@ -11492,7 +11492,7 @@ softdep_disk_write_complete(bp)
 	 */
 	sbp = NULL;
 	ACQUIRE_LOCK(ump);
-	if ((bp->b_ioflags & BIO_ERROR) != 0 && (bp->b_flags & B_INVAL) == 0) {
+	if ((bp->b_ioflags & BIO_ERROR) != 0 && (buf_flags(bp) & B_INVAL) == 0) {
 		LIST_FOREACH(wk, &bp->b_dep, wk_list) {
 			switch (wk->wk_type) {
 			case D_PAGEDEP:
@@ -11937,7 +11937,7 @@ handle_written_inodeblock(inodedep, bp, flags)
 			*dp2 = *inodedep->id_savedino2;
 		free(inodedep->id_savedino1, M_SAVEDINO);
 		inodedep->id_savedino1 = NULL;
-		if ((bp->b_flags & B_DELWRI) == 0)
+		if ((buf_flags(bp) & B_DELWRI) == 0)
 			stat_inode_bitmap++;
 		bdirty(bp);
 		/*
@@ -12026,7 +12026,7 @@ handle_written_inodeblock(inodedep, bp, flags)
 		adp->ad_state |= ATTACHED;
 		hadchanges = 1;
 	}
-	if (hadchanges && (bp->b_flags & B_DELWRI) == 0)
+	if (hadchanges && (buf_flags(bp) & B_DELWRI) == 0)
 		stat_direct_blk_ptrs++;
 	/*
 	 * Reset the file size to its most up-to-date value.
@@ -12227,7 +12227,7 @@ handle_written_indirdep(indirdep, bp, bpp, flags)
 	 * in this case.
 	 */
 	sbp = indirdep->ir_savebp;
-	sbp->b_flags |= B_INVAL | B_NOCACHE;
+	sbuf_flags(bp) |= B_INVAL | B_NOCACHE;
 	indirdep->ir_savebp = NULL;
 	indirdep->ir_bp = NULL;
 	if (*bpp != NULL)
@@ -12619,7 +12619,7 @@ rollforward:
 	 * its correct form.
 	 */
 	if (chgs || (flags & WRITESUCCEEDED) == 0) {
-		if ((bp->b_flags & B_DELWRI) == 0)
+		if ((buf_flags(bp) & B_DELWRI) == 0)
 			stat_dir_entry++;
 		bdirty(bp);
 		return (1);
@@ -13043,7 +13043,7 @@ restart:
 		if (BUF_LOCK(bp, LK_EXCLUSIVE | LK_NOWAIT, NULL))
 			continue;
 
-		if ((bp->b_flags & B_DELWRI) == 0)
+		if ((buf_flags(bp) & B_DELWRI) == 0)
 			panic("softdep_fsync_mountdev: not dirty");
 		/*
 		 * We are only interested in bitmaps with outstanding
@@ -13491,7 +13491,7 @@ flush_newblk_dep(vp, mp, lbn)
 			}
 			if (error != 0)
 				break;	/* Failed */
-			if (bp->b_flags & B_DELWRI) {
+			if (buf_flags(bp) & B_DELWRI) {
 				bremfree(bp);
 				error = buf_bwrite(bp);
 				if (error)
@@ -14690,7 +14690,7 @@ getdirtybuf(bp, lock, waitfor)
 		rw_sleep(&bp->b_xflags, lock, PRIBIO, "getbuf", 0);
 		return (NULL);
 	}
-	if ((bp->b_flags & B_DELWRI) == 0) {
+	if ((buf_flags(bp) & B_DELWRI) == 0) {
 		BUF_UNLOCK(bp);
 		return (NULL);
 	}

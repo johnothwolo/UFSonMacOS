@@ -1356,7 +1356,7 @@ ffs_use_bread(void *devfd, off_t loc, void **bufp, int size)
 	    &bp)) != 0)
 		return (error);
 	bcopy(buf_dataptr(bp), *bufp, size);
-	bp->b_flags |= B_INVAL | B_NOCACHE;
+	buf_flags(bp) |= B_INVAL | B_NOCACHE;
 	buf_brelse(bp);
 	return (0);
 }
@@ -2278,7 +2278,7 @@ ffs_use_bwrite(void *devfd, off_t loc, void *buf, int size)
 		bp = buf_getblk(ump->um_devvp, btodb(loc, devBlockSize), size, 0, 0, 0);
 		bcopy(buf, buf_dataptr(bp), (u_int)size);
 		if (devfdp->suspended)
-			bp->b_flags |= B_VALIDSUSPWRT;
+			buf_flags(bp) |= B_VALIDSUSPWRT;
 		if (devfdp->waitfor != FBSD_MNT_WAIT)
 			buf_bawrite(bp);
 		else if ((error = buf_bwrite(bp)) != 0)
@@ -2316,7 +2316,7 @@ ffs_use_bwrite(void *devfd, off_t loc, void *buf, int size)
 	/* Recalculate the superblock hash */
 	fs->fs_ckhash = ffs_calc_sbhash(fs);
 	if (devfdp->suspended)
-		bp->b_flags |= B_VALIDSUSPWRT;
+		buf_flags(bp) |= B_VALIDSUSPWRT;
 	if (devfdp->waitfor != FBSD_MNT_WAIT)
 		buf_bawrite(bp);
 	else if ((error = buf_bwrite(bp)) != 0)
@@ -2395,8 +2395,8 @@ ffs_backgroundwritedone(struct buf *bp)
 	 * This buffer is marked B_NOCACHE so when it is released
 	 * by biodone it will be tossed.
 	 */
-	bp->b_flags |= B_NOCACHE;
-	bp->b_flags &= ~B_CACHE;
+	buf_flags(bp) |= B_NOCACHE;
+	buf_flags(bp) &= ~B_CACHE;
 	pbrelvp(bp);
 
 	/*
@@ -2406,7 +2406,7 @@ ffs_backgroundwritedone(struct buf *bp)
 	 * pbrelvp() above.
 	 */
 	if ((bp->b_ioflags & BIO_ERROR) != 0)
-		bp->b_flags |= B_INVAL;
+		buf_flags(bp) |= B_INVAL;
 	buf_biodone(bp);
 	BO_LOCK(bufobj);
 	/*
@@ -2442,8 +2442,8 @@ ffs_bufwrite(struct buf *bp)
 	struct buf *newbp;
 	struct cg *cgp;
 
-	CTR3(KTR_BUF, "bufwrite(%p) vp %p flags %X", bp, buf_vnode(bp), bp->b_flags);
-	if (bp->b_flags & B_INVAL) {
+	CTR3(KTR_BUF, "bufwrite(%p) vp %p flags %X", bp, buf_vnode(bp), buf_flags(bp));
+	if (buf_flags(bp) & B_INVAL) {
 		buf_brelse(bp);
 		return (0);
 	}
@@ -2457,7 +2457,7 @@ ffs_bufwrite(struct buf *bp)
 	 */
 	BO_LOCK(bp->b_bufobj);
 	if (bp->b_vflags & BV_BKGRDINPROG) {
-		if (bp->b_flags & B_ASYNC) {
+		if (buf_flags(bp) & B_ASYNC) {
 			BO_UNLOCK(bp->b_bufobj);
 			buf_bdwrite(bp);
 			return (0);
@@ -2480,7 +2480,7 @@ ffs_bufwrite(struct buf *bp)
 	 * or buffer shortfall we can't do it.
 	 */
 	if (dobkgrdwrite && (buf_xflags(bp) & BX_BKGRDWRITE) &&
-	    (bp->b_flags & B_ASYNC) &&
+	    (buf_flags(bp) & B_ASYNC) &&
 	    !vm_page_count_severe() &&
 	    !buf_dirty_count_severe()) {
 		KASSERT(bp->b_iodone == NULL,
@@ -2502,8 +2502,8 @@ ffs_bufwrite(struct buf *bp)
 		newbp->b_blkno = bp->b_blkno;
 		newbp->b_offset = bp->b_offset;
 		newbp->b_iodone = ffs_backgroundwritedone;
-		newbp->b_flags |= B_ASYNC;
-		newbp->b_flags &= ~B_INVAL;
+		newbuf_flags(bp) |= B_ASYNC;
+		newbuf_flags(bp) &= ~B_INVAL;
 		pbgetvp(buf_vnode(bp), newbp);
 
 #ifdef SOFTUPDATES
@@ -2571,15 +2571,15 @@ ffs_geom_strategy(struct bufobj *bo, struct buf *bp)
 	    vp == VFSTOUFS(buf_vnode(bp)->v_rdev->si_mountpt)->um_devvp,
 	    ("ffs_geom_strategy() with wrong vp"));
 	if (bp->b_iocmd == BIO_WRITE) {
-		if ((bp->b_flags & B_VALIDSUSPWRT) == 0 &&
+		if ((buf_flags(bp) & B_VALIDSUSPWRT) == 0 &&
 		    buf_vnode(bp) != NULL && vnode_mount(buf_vnode(bp)) != NULL &&
 		    (vnode_mount(buf_vnode(bp))->mnt_kern_flag & MNTK_SUSPENDED) != 0)
 			panic("ffs_geom_strategy: bad I/O");
-		nocopy = bp->b_flags & B_NOCOPY;
-		bp->b_flags &= ~(B_VALIDSUSPWRT | B_NOCOPY);
+		nocopy = buf_flags(bp) & B_NOCOPY;
+		buf_flags(bp) &= ~(B_VALIDSUSPWRT | B_NOCOPY);
 		if ((vp->v_vflag & VV_COPYONWRITE) && nocopy == 0 &&
 		    vp->v_rdev->si_snapdata != NULL) {
-			if ((bp->b_flags & B_CLUSTER) != 0) {
+			if ((buf_flags(bp) & B_CLUSTER) != 0) {
 				runningbufwakeup(bp);
 				TAILQ_FOREACH(tbp, &bp->b_cluster.cluster_head,
 					      b_cluster.cluster_entry) {
@@ -2588,7 +2588,7 @@ ffs_geom_strategy(struct bufobj *bo, struct buf *bp)
 					    error != EOPNOTSUPP) {
 						bp->b_error = error;
 						bp->b_ioflags |= BIO_ERROR;
-						bp->b_flags &= ~B_BARRIER;
+						buf_flags(bp) &= ~B_BARRIER;
 						buf_biodone(bp);
 						return;
 					}
@@ -2601,14 +2601,14 @@ ffs_geom_strategy(struct bufobj *bo, struct buf *bp)
 				if (error != 0 && error != EOPNOTSUPP) {
 					bp->b_error = error;
 					bp->b_ioflags |= BIO_ERROR;
-					bp->b_flags &= ~B_BARRIER;
+					buf_flags(bp) &= ~B_BARRIER;
 					buf_biodone(bp);
 					return;
 				}
 			}
 		}
 #ifdef SOFTUPDATES
-		if ((bp->b_flags & B_CLUSTER) != 0) {
+		if ((buf_flags(bp) & B_CLUSTER) != 0) {
 			TAILQ_FOREACH(tbp, &bp->b_cluster.cluster_head,
 				      b_cluster.cluster_entry) {
 				if (!LIST_EMPTY(&tbp->b_dep))

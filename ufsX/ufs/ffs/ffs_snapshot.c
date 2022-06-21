@@ -456,7 +456,7 @@ restart:
 	if (error != 0)
 		goto out1;
 	error = readblock(vp, bp, numblks - 1);
-	bp->b_flags |= B_VALIDSUSPWRT;
+	buf_flags(bp) |= B_VALIDSUSPWRT;
 	buf_bawrite(bp);
 	if (error != 0)
 		goto out1;
@@ -512,7 +512,7 @@ restart:
 		}
 		bcopy(buf_dataptr(bp), space, (u_int)len);
 		space = (char *)space + len;
-		bp->b_flags |= B_INVAL | B_NOCACHE;
+		buf_flags(bp) |= B_INVAL | B_NOCACHE;
 		buf_brelse(bp);
 	}
 	if (fs->fs_contigsumsize > 0) {
@@ -929,7 +929,7 @@ cgaccount(cg, vp, nbp, passno)
 	cgp = (struct cg *)buf_dataptr(nbp);
 	buf_qrelse(bp);
 	if (passno == 2)
-		nbp->b_flags |= B_VALIDSUSPWRT;
+		nbuf_flags(bp) |= B_VALIDSUSPWRT;
 	numblks = howmany(fs->fs_size, fs->fs_frag);
 	len = howmany(fs->fs_fpg, fs->fs_frag);
 	base = cgbase(fs, cg) / fs->fs_frag;
@@ -955,7 +955,7 @@ cgaccount(cg, vp, nbp, passno)
 	for ( ; loc < len; loc++, indiroff++) {
 		if (indiroff >= NINDIR(fs)) {
 			if (passno == 2)
-				ibp->b_flags |= B_VALIDSUSPWRT;
+				ibuf_flags(bp) |= B_VALIDSUSPWRT;
 			buf_bawrite(ibp);
 			error = UFS_BALLOC(vp,
 			    lblktosize(fs, (off_t)(base + loc)),
@@ -987,7 +987,7 @@ cgaccount(cg, vp, nbp, passno)
 			panic("ffs_snapshot: lost indirect block");
 	}
 	if (passno == 2)
-		ibp->b_flags |= B_VALIDSUSPWRT;
+		ibuf_flags(bp) |= B_VALIDSUSPWRT;
 	buf_bdwrite(ibp);
 out:
 	/*
@@ -1146,7 +1146,7 @@ indiracct_ufs1(snapvp, cancelvp, level, blkno, lbn, rlbn, remblks,
 	 */
 	bp = buf_getblk(cancelvp, lbn, fs->fs_bsize, 0, 0, 0);
 	bp->b_blkno = fsbtodb(fs, blkno);
-	if ((bp->b_flags & (B_DONE | B_DELWRI)) == 0 &&
+	if ((buf_flags(bp) & (B_DONE | B_DELWRI)) == 0 &&
 	    (error = readblock(cancelvp, bp, fragstoblks(fs, blkno)))) {
 		buf_brelse(bp);
 		return (error);
@@ -1432,7 +1432,7 @@ indiracct_ufs2(snapvp, cancelvp, level, blkno, lbn, rlbn, remblks,
 	 */
 	bp = buf_getblk(cancelvp, lbn, fs->fs_bsize, 0, 0, 0);
 	bp->b_blkno = fsbtodb(fs, blkno);
-	if ((bp->b_flags & B_CACHE) == 0 &&
+	if ((buf_flags(bp) & B_CACHE) == 0 &&
 	    (error = readblock(cancelvp, bp, fragstoblks(fs, blkno)))) {
 		buf_brelse(bp);
 		return (error);
@@ -2255,7 +2255,7 @@ ffs_bdflush(bo, bp)
 				}
 				VI_UNLOCK(devvp);
 			}
-			if (nbp->b_flags & B_CLUSTEROK) {
+			if (nbuf_flags(bp) & B_CLUSTEROK) {
 				vfs_bio_awrite(nbp);
 			} else {
 				bremfree(nbp);

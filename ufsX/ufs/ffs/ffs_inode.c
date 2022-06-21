@@ -198,7 +198,7 @@ loop:
 		error = 0;
 	} else {
 		if (bp->b_bufsize == fs->fs_bsize)
-			bp->b_flags |= B_CLUSTEROK;
+			buf_flags(bp) |= B_CLUSTEROK;
 		buf_bdwrite(bp);
 		error = 0;
 	}
@@ -362,7 +362,7 @@ ffs_truncate(vp, length, flags, cred)
 		ip->i_size = length;
 		DIP_SET(ip, i_size, length);
 		if (bp->b_bufsize == fs->fs_bsize)
-			bp->b_flags |= B_CLUSTEROK;
+			buf_flags(bp) |= B_CLUSTEROK;
 		ffs_inode_bwrite(vp, bp, flags);
 		UFS_INODE_SET_FLAG(ip, IN_SIZEMOD | IN_CHANGE | IN_UPDATE);
 		return (ffs_update(vp, waitforupdate));
@@ -484,7 +484,7 @@ ffs_truncate(vp, length, flags, cred)
 		/* Kirk's code has reallocbuf(bp, size, 1) here */
 		allocbuf(bp, size);
 		if (bp->b_bufsize == fs->fs_bsize)
-			bp->b_flags |= B_CLUSTEROK;
+			buf_flags(bp) |= B_CLUSTEROK;
 		ffs_inode_bwrite(vp, bp, flags);
 		UFS_INODE_SET_FLAG(ip, IN_SIZEMOD | IN_CHANGE | IN_UPDATE);
 	}
@@ -784,7 +784,7 @@ ffs_indirtrunc(ip, lbn, dbn, lastbn, level, countp)
 	if (copy != NULL) {
 		free(copy, M_TEMP);
 	} else {
-		bp->b_flags |= B_INVAL | B_NOCACHE;
+		buf_flags(bp) |= B_INVAL | B_NOCACHE;
 		buf_brelse(bp);
 	}
 

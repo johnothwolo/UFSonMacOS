@@ -144,211 +144,207 @@ retry:
 	return (0);
 }
 
+static int
+ffs_syncvnode_callback(buf_t bp, char *arg)
+{
+    /*
+     * Reasons to skip this buffer: it has already been considered
+     * on this pass, the buffer has dependencies that will cause
+     * it to be redirtied and it has not already been deferred,
+     * or it is already being written.
+     */
+//    if ((bp->b_vflags & BV_SCANNED) != 0)
+//        continue;
+    /*
+     * Flush indirects in order, if requested.
+     *
+     * Note that if only datasync is requested, we can
+     * skip indirect blocks when softupdates are not
+     * active.  Otherwise we must flush them with data,
+     * since dependencies prevent data block writes.
+     */
+    if (waitfor == FBSD_MNT_WAIT && buf_lblkno(bp) <= -UFS_NDADDR &&
+        (lbn_level(buf_lblkno(bp)) >= passes ||
+         ((flags & DATA_ONLY) != 0 && !DOINGSOFTDEP(vp))))
+        return BUF_CLAIMED;;
+    if (buf_lblkno(bp) > lbn)
+        panic("ffs_syncvnode: syncing truncated data.");
+    if (BUF_LOCK(bp, LK_EXCLUSIVE | LK_NOWAIT, NULL) == 0) {
+        BO_UNLOCK(bo);
+    } else if (wait) {
+        if (BUF_LOCK(bp,
+                     LK_EXCLUSIVE | LK_SLEEPFAIL | LK_INTERLOCK,
+                     BO_LOCKPTR(bo)) != 0) {
+            bp->b_vflags &= ~BV_SCANNED;
+            goto next;
+        }
+    } else
+        return BUF_CLAIMED;
+    if ((buf_flags(bp) & B_DELWRI) == 0)
+        panic("ffs_fsync: not dirty");
+    /*
+     * Check for dependencies and potentially complete them.
+     */
+    if (!LIST_EMPTY(&bp->b_dep) &&
+        (error = softdep_sync_buf(vp, bp,
+                                  wait ? FBSD_MNT_WAIT : FBSD_MNT_NOWAIT)) != 0) {
+        /*
+         * Lock order conflict, buffer was already unlocked,
+         * and vnode possibly unlocked.
+         */
+        if (error == ERECYCLE) {
+            if (vp->v_data == NULL)
+                return (EBADF);
+            unlocked = true;
+            if (DOINGSOFTDEP(vp) && waitfor == FBSD_MNT_WAIT &&
+                (error = softdep_sync_metadata(vp)) != 0) {
+                if (ffs_fsfail_cleanup(ump, error))
+                    error = 0;
+                return (unlocked && error == 0 ?
+                        ERECYCLE : error);
+            }
+            /* Re-evaluate inode size */
+            lbn = lblkno(ITOFS(ip), (ip->i_size +
+                                     ITOFS(ip)->fs_bsize - 1));
+            goto next;
+        }
+        /* I/O error. */
+        if (error != EBUSY) {
+            BUF_UNLOCK(bp);
+            return (error);
+        }
+        /* If we deferred once, don't defer again. */
+        if ((buf_flags(bp) & B_DEFERRED) == 0) {
+            buf_flags(bp) |= B_DEFERRED;
+            BUF_UNLOCK(bp);
+            goto next;
+        }
+    }
+    if (wait) {
+        bremfree(bp);
+        error = buf_bwrite(bp);
+        if (ffs_fsfail_cleanup(ump, error))
+            error = 0;
+        if (error != 0)
+            return (error);
+    } else if ((buf_flags(bp) & B_CLUSTEROK)) {
+        (void) vfs_bio_awrite(bp);
+    } else {
+        bremfree(bp);
+        (void) buf_bawrite(bp);
+    }
+next:
+    return BUF_RETURNED;
+}
+
 int
 ffs_syncvnode(struct vnode *vp, int waitfor, int flags)
 {
-    return 0;
+	struct inode *ip;
+	struct ufsmount *ump;
+	struct buf *bp, *nbp;
+	ufs_lbn_t lbn;
+	int error, passes;
+	bool still_dirty, unlocked, wait;
+
+	ip = VTOI(vp);
+	ip->i_flag &= ~IN_NEEDSYNC;
+	ump = VFSTOUFS(vnode_mount(vp));
+
+	/*
+	 * When doing FBSD_MNT_WAIT we must first flush all dependencies
+	 * on the inode.
+	 */
+	if (DOINGSOFTDEP(vp) && waitfor == FBSD_MNT_WAIT &&
+	    (error = softdep_sync_metadata(vp)) != 0) {
+		if (ffs_fsfail_cleanup(ump, error))
+			error = 0;
+		return (error);
+	}
+
+	/*
+	 * Flush all dirty buffers associated with a vnode.
+	 */
+	error = 0;
+	passes = 0;
+	wait = false;	/* Always do an async pass first. */
+	unlocked = false;
+	lbn = lblkno(ITOFS(ip), (ip->i_size + ITOFS(ip)->fs_bsize - 1));
+    
+    error = buf_iterate(vp, ffs_syncvnode_callback, flags, NULL);
+    
+	BO_LOCK(bo);
+loop:
+	TAILQ_FOREACH(bp, &bo->bo_dirty.bv_hd, b_bobufs)
+		bp->b_vflags &= ~BV_SCANNED;
+//	TAILQ_FOREACH_SAFE(bp, &bo->bo_dirty.bv_hd, b_bobufs, nbp)
+	if (waitfor != FBSD_MNT_WAIT) {
+		BO_UNLOCK(bo);
+		if ((flags & NO_INO_UPDT) != 0)
+			return (unlocked ? ERECYCLE : 0);
+		error = ffs_update(vp, 0);
+		if (error == 0 && unlocked)
+			error = ERECYCLE;
+		return (error);
+	}
+	/* Drain IO to see if we're done. */
+	bufobj_wwait(bo, 0, 0);
+	/*
+	 * Block devices associated with filesystems may have new I/O
+	 * requests posted for them even if the vnode is locked, so no
+	 * amount of trying will get them clean.  We make several passes
+	 * as a best effort.
+	 *
+	 * Regular files may need multiple passes to flush all dependency
+	 * work as it is possible that we must write once per indirect
+	 * level, once for the leaf, and once for the inode and each of
+	 * these will be done with one sync and one async pass.
+	 */
+	if (bo->bo_dirty.bv_cnt > 0) {
+		if ((flags & DATA_ONLY) == 0) {
+			still_dirty = true;
+		} else {
+			/*
+			 * For data-only sync, dirty indirect buffers
+			 * are ignored.
+			 */
+			still_dirty = false;
+			TAILQ_FOREACH(bp, &bo->bo_dirty.bv_hd, b_bobufs) {
+				if (buf_lblkno(bp) > -UFS_NDADDR) {
+					still_dirty = true;
+					break;
+				}
+			}
+		}
+
+		if (still_dirty) {
+			/* Write the inode after sync passes to flush deps. */
+			if (wait && DOINGSOFTDEP(vp) &&
+			    (flags & NO_INO_UPDT) == 0) {
+				BO_UNLOCK(bo);
+				ffs_update(vp, 1);
+				BO_LOCK(bo);
+			}
+			/* switch between sync/async. */
+			wait = !wait;
+			if (wait || ++passes < UFS_NIADDR + 2)
+				goto loop;
+		}
+	}
+	BO_UNLOCK(bo);
+	error = 0;
+	if ((flags & DATA_ONLY) == 0) {
+		if ((flags & NO_INO_UPDT) == 0)
+			error = ffs_update(vp, 1);
+		if (DOINGSUJ(vp))
+			softdep_journal_fsync(VTOI(vp));
+	} else if ((ip->i_flags & (IN_SIZEMOD | IN_IBLKDATA)) != 0) {
+		error = ffs_update(vp, 1);
+	}
+	if (error == 0 && unlocked)
+		error = ERECYCLE;
+	return (error);
 }
-//{
-//	struct inode *ip;
-//	struct bufobj *bo;
-//	struct ufsmount *ump;
-//	struct buf *bp, *nbp;
-//	ufs_lbn_t lbn;
-//	int error, passes;
-//	bool still_dirty, unlocked, wait;
-//
-//	ip = VTOI(vp);
-//	ip->i_flag &= ~IN_NEEDSYNC;
-//	bo = &vp->v_bufobj;
-//	ump = VFSTOUFS(vnode_mount(vp));
-//
-//	/*
-//	 * When doing FBSD_MNT_WAIT we must first flush all dependencies
-//	 * on the inode.
-//	 */
-//	if (DOINGSOFTDEP(vp) && waitfor == FBSD_MNT_WAIT &&
-//	    (error = softdep_sync_metadata(vp)) != 0) {
-//		if (ffs_fsfail_cleanup(ump, error))
-//			error = 0;
-//		return (error);
-//	}
-//
-//	/*
-//	 * Flush all dirty buffers associated with a vnode.
-//	 */
-//	error = 0;
-//	passes = 0;
-//	wait = false;	/* Always do an async pass first. */
-//	unlocked = false;
-//	lbn = lblkno(ITOFS(ip), (ip->i_size + ITOFS(ip)->fs_bsize - 1));
-//	BO_LOCK(bo);
-//loop:
-//	TAILQ_FOREACH(bp, &bo->bo_dirty.bv_hd, b_bobufs)
-//		bp->b_vflags &= ~BV_SCANNED;
-//	TAILQ_FOREACH_SAFE(bp, &bo->bo_dirty.bv_hd, b_bobufs, nbp) {
-//		/*
-//		 * Reasons to skip this buffer: it has already been considered
-//		 * on this pass, the buffer has dependencies that will cause
-//		 * it to be redirtied and it has not already been deferred,
-//		 * or it is already being written.
-//		 */
-//		if ((bp->b_vflags & BV_SCANNED) != 0)
-//			continue;
-//		bp->b_vflags |= BV_SCANNED;
-//		/*
-//		 * Flush indirects in order, if requested.
-//		 *
-//		 * Note that if only datasync is requested, we can
-//		 * skip indirect blocks when softupdates are not
-//		 * active.  Otherwise we must flush them with data,
-//		 * since dependencies prevent data block writes.
-//		 */
-//		if (waitfor == FBSD_MNT_WAIT && buf_lblkno(bp) <= -UFS_NDADDR &&
-//		    (lbn_level(buf_lblkno(bp)) >= passes ||
-//		    ((flags & DATA_ONLY) != 0 && !DOINGSOFTDEP(vp))))
-//			continue;
-//		if (buf_lblkno(bp) > lbn)
-//			panic("ffs_syncvnode: syncing truncated data.");
-//		if (BUF_LOCK(bp, LK_EXCLUSIVE | LK_NOWAIT, NULL) == 0) {
-//			BO_UNLOCK(bo);
-//		} else if (wait) {
-//			if (BUF_LOCK(bp,
-//			    LK_EXCLUSIVE | LK_SLEEPFAIL | LK_INTERLOCK,
-//			    BO_LOCKPTR(bo)) != 0) {
-//				bp->b_vflags &= ~BV_SCANNED;
-//				goto next;
-//			}
-//		} else
-//			continue;
-//		if ((bp->b_flags & B_DELWRI) == 0)
-//			panic("ffs_fsync: not dirty");
-//		/*
-//		 * Check for dependencies and potentially complete them.
-//		 */
-//		if (!LIST_EMPTY(&bp->b_dep) &&
-//		    (error = softdep_sync_buf(vp, bp,
-//		    wait ? FBSD_MNT_WAIT : FBSD_MNT_NOWAIT)) != 0) {
-//			/*
-//			 * Lock order conflict, buffer was already unlocked,
-//			 * and vnode possibly unlocked.
-//			 */
-//			if (error == ERECYCLE) {
-//				if (vp->v_data == NULL)
-//					return (EBADF);
-//				unlocked = true;
-//				if (DOINGSOFTDEP(vp) && waitfor == FBSD_MNT_WAIT &&
-//				    (error = softdep_sync_metadata(vp)) != 0) {
-//					if (ffs_fsfail_cleanup(ump, error))
-//						error = 0;
-//					return (unlocked && error == 0 ?
-//					    ERECYCLE : error);
-//				}
-//				/* Re-evaluate inode size */
-//				lbn = lblkno(ITOFS(ip), (ip->i_size +
-//				    ITOFS(ip)->fs_bsize - 1));
-//				goto next;
-//			}
-//			/* I/O error. */
-//			if (error != EBUSY) {
-//				BUF_UNLOCK(bp);
-//				return (error);
-//			}
-//			/* If we deferred once, don't defer again. */
-//		    	if ((bp->b_flags & B_DEFERRED) == 0) {
-//				bp->b_flags |= B_DEFERRED;
-//				BUF_UNLOCK(bp);
-//				goto next;
-//			}
-//		}
-//		if (wait) {
-//			bremfree(bp);
-//			error = buf_bwrite(bp);
-//			if (ffs_fsfail_cleanup(ump, error))
-//				error = 0;
-//			if (error != 0)
-//				return (error);
-//		} else if ((bp->b_flags & B_CLUSTEROK)) {
-//			(void) vfs_bio_awrite(bp);
-//		} else {
-//			bremfree(bp);
-//			(void) buf_bawrite(bp);
-//		}
-//next:
-//		/*
-//		 * Since we may have slept during the I/O, we need
-//		 * to start from a known point.
-//		 */
-//		BO_LOCK(bo);
-//		nbp = TAILQ_FIRST(&bo->bo_dirty.bv_hd);
-//	}
-//	if (waitfor != FBSD_MNT_WAIT) {
-//		BO_UNLOCK(bo);
-//		if ((flags & NO_INO_UPDT) != 0)
-//			return (unlocked ? ERECYCLE : 0);
-//		error = ffs_update(vp, 0);
-//		if (error == 0 && unlocked)
-//			error = ERECYCLE;
-//		return (error);
-//	}
-//	/* Drain IO to see if we're done. */
-//	bufobj_wwait(bo, 0, 0);
-//	/*
-//	 * Block devices associated with filesystems may have new I/O
-//	 * requests posted for them even if the vnode is locked, so no
-//	 * amount of trying will get them clean.  We make several passes
-//	 * as a best effort.
-//	 *
-//	 * Regular files may need multiple passes to flush all dependency
-//	 * work as it is possible that we must write once per indirect
-//	 * level, once for the leaf, and once for the inode and each of
-//	 * these will be done with one sync and one async pass.
-//	 */
-//	if (bo->bo_dirty.bv_cnt > 0) {
-//		if ((flags & DATA_ONLY) == 0) {
-//			still_dirty = true;
-//		} else {
-//			/*
-//			 * For data-only sync, dirty indirect buffers
-//			 * are ignored.
-//			 */
-//			still_dirty = false;
-//			TAILQ_FOREACH(bp, &bo->bo_dirty.bv_hd, b_bobufs) {
-//				if (buf_lblkno(bp) > -UFS_NDADDR) {
-//					still_dirty = true;
-//					break;
-//				}
-//			}
-//		}
-//
-//		if (still_dirty) {
-//			/* Write the inode after sync passes to flush deps. */
-//			if (wait && DOINGSOFTDEP(vp) &&
-//			    (flags & NO_INO_UPDT) == 0) {
-//				BO_UNLOCK(bo);
-//				ffs_update(vp, 1);
-//				BO_LOCK(bo);
-//			}
-//			/* switch between sync/async. */
-//			wait = !wait;
-//			if (wait || ++passes < UFS_NIADDR + 2)
-//				goto loop;
-//		}
-//	}
-//	BO_UNLOCK(bo);
-//	error = 0;
-//	if ((flags & DATA_ONLY) == 0) {
-//		if ((flags & NO_INO_UPDT) == 0)
-//			error = ffs_update(vp, 1);
-//		if (DOINGSUJ(vp))
-//			softdep_journal_fsync(VTOI(vp));
-//	} else if ((ip->i_flags & (IN_SIZEMOD | IN_IBLKDATA)) != 0) {
-//		error = ffs_update(vp, 1);
-//	}
-//	if (error == 0 && unlocked)
-//		error = ERECYCLE;
-//	return (error);
-//}
 
 int
 ffs_lock(ap)
@@ -495,8 +491,7 @@ ffs_read_hole(struct uio *uio, long xfersize, long *size)
 	while (xfersize > 0) {
 		tlen = xfersize;
 		saved_resid = uio_resid(uio);
-		error = uiomove(__DECONST(void *, zero_region),
-		    tlen, uio);
+		error = uiomove(__DECONST(void *, zero_region), tlen, uio);
 		if (error != 0)
 			return (error);
 		tlen = saved_resid - uio_resid(uio);
@@ -657,7 +652,8 @@ ffs_read(ap)
 		 * then we want to ensure that we do not uiomove bad
 		 * or uninitialized data.
 		 */
-		size -= bp->b_resid;
+        
+		size -= buf_resid(bp);
 		if (size < xfersize) {
 			if (size == 0)
 				break;
@@ -799,7 +795,7 @@ ffs_write(ap)
 			break;
 		}
 		if ((ioflag & (IO_SYNC|IO_INVAL)) == (IO_SYNC|IO_INVAL))
-			bp->b_flags |= B_NOCACHE;
+			buf_flags(bp) |= B_NOCACHE;
 
 		if (uio_offset(uio) + xfersize > ip->i_size) {
 			ip->i_size = uio_offset(uio) + xfersize;
@@ -807,7 +803,7 @@ ffs_write(ap)
 			UFS_INODE_SET_FLAG(ip, IN_SIZEMOD | IN_CHANGE);
 		}
 
-		size = blksize(fs, ip, lbn) - bp->b_resid;
+		size = blksize(fs, ip, lbn) - buf_resid(bp);
 		if (size < xfersize)
 			xfersize = size;
 
@@ -834,7 +830,7 @@ ffs_write(ap)
 		 * content remains valid because the page fault handler
 		 * validated the pages.
 		 */
-		if (error != 0 && (bp->b_flags & B_CACHE) == 0 &&
+		if (error != 0 && (buf_flags(bp) & B_CACHE) == 0 &&
 		    fs->fs_bsize == xfersize)
 			buf_clear(bp);
 
@@ -852,21 +848,21 @@ ffs_write(ap)
 		} else if (vm_page_count_severe() ||
 			    buf_dirty_count_severe() ||
 			    (ioflag & IO_ASYNC)) {
-			bp->b_flags |= B_CLUSTEROK;
+			buf_flags(bp) |= B_CLUSTEROK;
 			buf_bawrite(bp);
 		} else if (xfersize + blkoffset == fs->fs_bsize) {
 			if ((vfs_flags(vnode_mount(vp)) & FBSD_MNT_NOCLUSTERW) == 0) {
-				bp->b_flags |= B_CLUSTEROK;
+				buf_flags(bp) |= B_CLUSTEROK;
 				cluster_write(vp, bp, ip->i_size, seqcount,
 				    GB_UNMAPPED);
 			} else {
 				buf_bawrite(bp);
 			}
 		} else if (ioflag & IO_DIRECT) {
-			bp->b_flags |= B_CLUSTEROK;
+			buf_flags(bp) |= B_CLUSTEROK;
 			buf_bawrite(bp);
 		} else {
-			bp->b_flags |= B_CLUSTEROK;
+			buf_flags(bp) |= B_CLUSTEROK;
 			buf_bdwrite(bp);
 		}
 		if (error || xfersize == 0)
@@ -981,8 +977,8 @@ ffs_extread(struct vnode *vp, struct uio *uio, int ioflag)
 			u_int nextsize = sblksize(fs, dp->di_extsize, nextlbn);
 
 			nextlbn = -1 - nextlbn;
-			error = breadn(vp, -1 - lbn,
-			    size, &nextlbn, &nextsize, 1, NOCRED, &bp);
+			error = buf_breadn(vp, -1 - lbn,
+                        size, &nextlbn, &nextsize, 1, NOCRED, &bp);
 		}
 		if (error) {
 			buf_brelse(bp);
@@ -997,7 +993,7 @@ ffs_extread(struct vnode *vp, struct uio *uio, int ioflag)
 		 * then we want to ensure that we do not uiomove bad
 		 * or uninitialized data.
 		 */
-		size -= bp->b_resid;
+		size -= buf_resid(bp);
 		if (size < xfersize) {
 			if (size == 0)
 				break;
@@ -1086,7 +1082,7 @@ ffs_extwrite(struct vnode *vp, struct uio *uio, int ioflag, struct ucred *ucred)
 		 * the prior contents of the pages exposed to a userland
 		 * mmap().  XXX deal with uiomove() errors a better way.
 		 */
-		if ((bp->b_flags & B_CACHE) == 0 && fs->fs_bsize <= xfersize)
+		if ((buf_flags(bp) & B_CACHE) == 0 && fs->fs_bsize <= xfersize)
 			buf_clear(bp);
 
 		if (uio_offset(uio) + xfersize > dp->di_extsize) {
@@ -1094,7 +1090,7 @@ ffs_extwrite(struct vnode *vp, struct uio *uio, int ioflag, struct ucred *ucred)
 			UFS_INODE_SET_FLAG(ip, IN_SIZEMOD | IN_CHANGE);
 		}
 
-		size = sblksize(fs, dp->di_extsize, lbn) - bp->b_resid;
+		size = sblksize(fs, dp->di_extsize, lbn) - buf_resid(bp);
 		if (size < xfersize)
 			xfersize = size;
 

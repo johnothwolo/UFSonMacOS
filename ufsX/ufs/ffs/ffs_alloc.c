@@ -339,9 +339,9 @@ retry:
 		else
 			UFS_INODE_SET_FLAG(ip, IN_CHANGE | IN_UPDATE);
 		allocbuf(bp, nsize);
-		bp->b_flags |= B_DONE;
+		buf_flags(bp) |= B_DONE;
 		vfs_bio_bzero_buf(bp, osize, nsize - osize);
-		if ((bp->b_flags & (B_MALLOC | B_VMIO)) == B_VMIO)
+		if ((buf_flags(bp) & (B_MALLOC | B_VMIO)) == B_VMIO)
 			vfs_bio_set_valid(bp, osize, nsize - osize);
 		*bpp = bp;
 		return (0);
@@ -414,7 +414,7 @@ retry:
 			 */
 			ffs_blkfree(ump, fs, ump->um_devvp, bprev, (long)osize,
 			    ip->i_number, vnode_vtype(vp), NULL,
-			    (bp->b_flags & B_DELWRI) != 0 ?
+			    (buf_flags(bp) & B_DELWRI) != 0 ?
 			    NOTRIM_KEY : SINGLETON_KEY);
 		delta = btodb(nsize - osize);
 		DIP_SET(ip, i_blocks, DIP(ip, i_blocks) + delta);
@@ -423,9 +423,9 @@ retry:
 		else
 			UFS_INODE_SET_FLAG(ip, IN_CHANGE | IN_UPDATE);
 		allocbuf(bp, nsize);
-		bp->b_flags |= B_DONE;
+		buf_flags(bp) |= B_DONE;
 		vfs_bio_bzero_buf(bp, osize, nsize - osize);
-		if ((bp->b_flags & (B_MALLOC | B_VMIO)) == B_VMIO)
+		if ((buf_flags(bp) & (B_MALLOC | B_VMIO)) == B_VMIO)
 			vfs_bio_set_valid(bp, osize, nsize - osize);
 		*bpp = bp;
 		return (0);
@@ -791,7 +791,7 @@ ffs_reallocblks_ufs1(ap)
 			ffs_blkfree(ump, fs, ump->um_devvp,
 			    dbtofsb(fs, bp->b_blkno),
 			    fs->fs_bsize, ip->i_number, vnode_vtype(vp), NULL,
-			    (bp->b_flags & B_DELWRI) != 0 ?
+			    (buf_flags(bp) & B_DELWRI) != 0 ?
 			    NOTRIM_KEY : SINGLETON_KEY);
 		bp->b_blkno = fsbtodb(fs, blkno);
 #ifdef INVARIANTS
@@ -1055,7 +1055,7 @@ ffs_reallocblks_ufs2(ap)
 			ffs_blkfree(ump, fs, ump->um_devvp,
 			    dbtofsb(fs, bp->b_blkno),
 			    fs->fs_bsize, ip->i_number, vnode_vtype(vp), NULL,
-			    (bp->b_flags & B_DELWRI) != 0 ?
+			    (buf_flags(bp) & B_DELWRI) != 0 ?
 			    NOTRIM_KEY : SINGLETON_KEY);
 		bp->b_blkno = fsbtodb(fs, blkno);
 #ifdef INVARIANTS
@@ -2282,8 +2282,8 @@ ffs_blkfree_cg(ump, fs, devvp, bno, size, inum, dephd)
 		KASSERT(error == 0, ("getblkx failed"));
 		softdep_setup_blkfree(UFSTOVFS(ump), bp, bno,
 		    numfrags(fs, size), dephd);
-		bp->b_flags |= B_RELBUF | B_NOCACHE;
-		bp->b_flags &= ~B_CACHE;
+		buf_flags(bp) |= B_RELBUF | B_NOCACHE;
+		buf_flags(bp) &= ~B_CACHE;
 		buf_bawrite(bp);
 		return;
 	}
@@ -2839,8 +2839,8 @@ ffs_freefile(ump, fs, devvp, ino, mode, wkhd)
 		error = getblkx(devvp, dbn, dbn, fs->fs_cgsize, 0, 0, 0, &bp);
 		KASSERT(error == 0, ("getblkx failed"));
 		softdep_setup_inofree(UFSTOVFS(ump), bp, ino, wkhd);
-		bp->b_flags |= B_RELBUF | B_NOCACHE;
-		bp->b_flags &= ~B_CACHE;
+		buf_flags(bp) |= B_RELBUF | B_NOCACHE;
+		buf_flags(bp) &= ~B_CACHE;
 		buf_bawrite(bp);
 		return (error);
 	}
@@ -3011,7 +3011,7 @@ ffs_getcg(fs, devvp, cg, flags, bpp, cgpp)
 		return (error);
 	cgp = (struct cg *)buf_dataptr(bp);
 	if ((fs->fs_metackhash & CK_CYLGRP) != 0 &&
-	    (bp->b_flags & B_CKHASH) != 0 &&
+	    (buf_flags(bp) & B_CKHASH) != 0 &&
 	    cgp->cg_ckhash != bp->b_ckhash) {
 		sfs = ffs_getmntstat(devvp);
 		printf("UFS %s%s (%s) cylinder checksum failed: cg %u, cgp: "
@@ -3019,8 +3019,8 @@ ffs_getcg(fs, devvp, cg, flags, bpp, cgpp)
 		    vnode_vtype(devvp) == VCHR ? "" : "snapshot of ",
 		    sfs->f_mntfromname, sfs->f_mntonname,
 		    cg, cgp->cg_ckhash, (uintmax_t)bp->b_ckhash);
-		bp->b_flags &= ~B_CKHASH;
-		bp->b_flags |= B_INVAL | B_NOCACHE;
+		buf_flags(bp) &= ~B_CKHASH;
+		buf_flags(bp) |= B_INVAL | B_NOCACHE;
 		buf_brelse(bp);
 		return (EIO);
 	}
@@ -3035,12 +3035,12 @@ ffs_getcg(fs, devvp, cg, flags, bpp, cgpp)
 		else
 			printf(": wrong cylinder group cg %u != cgx %u\n", cg,
 			    cgp->cg_cgx);
-		bp->b_flags &= ~B_CKHASH;
-		bp->b_flags |= B_INVAL | B_NOCACHE;
+		buf_flags(bp) &= ~B_CKHASH;
+		buf_flags(bp) |= B_INVAL | B_NOCACHE;
 		buf_brelse(bp);
 		return (EIO);
 	}
-	bp->b_flags &= ~B_CKHASH;
+	buf_flags(bp) &= ~B_CKHASH;
 	buf_setxflags(bp, BX_BKGRDWRITE);
 	/*
 	 * If we are using check hashes on the cylinder group then we want

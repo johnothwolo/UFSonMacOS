@@ -282,7 +282,7 @@ ffs_balloc_ufs1(struct vnode *vp, off_t startoffset, int size,
 			buf_bdwrite(bp);
 		} else if ((flags & IO_SYNC) == 0 && DOINGASYNC(vp)) {
 			if (bp->b_bufsize == fs->fs_bsize)
-				bp->b_flags |= B_CLUSTEROK;
+				buf_flags(bp) |= B_CLUSTEROK;
 			buf_bdwrite(bp);
 		} else {
 			if ((error = buf_bwrite(bp)) != 0)
@@ -361,7 +361,7 @@ retry:
 			buf_bdwrite(nbp);
 		} else if ((flags & IO_SYNC) == 0 && DOINGASYNC(vp)) {
 			if (nbp->b_bufsize == fs->fs_bsize)
-				nbp->b_flags |= B_CLUSTEROK;
+				nbuf_flags(bp) |= B_CLUSTEROK;
 			buf_bdwrite(nbp);
 		} else {
 			if ((error = buf_bwrite(nbp)) != 0) {
@@ -380,7 +380,7 @@ retry:
 			buf_bwrite(bp);
 		} else {
 			if (bp->b_bufsize == fs->fs_bsize)
-				bp->b_flags |= B_CLUSTEROK;
+				buf_flags(bp) |= B_CLUSTEROK;
 			buf_bdwrite(bp);
 		}
 	}
@@ -451,7 +451,7 @@ retry:
 			buf_bwrite(bp);
 		} else {
 			if (bp->b_bufsize == fs->fs_bsize)
-				bp->b_flags |= B_CLUSTEROK;
+				buf_flags(bp) |= B_CLUSTEROK;
 			buf_bdwrite(bp);
 		}
 		curthread_pflags_restore(saved_inbdflush);
@@ -518,8 +518,8 @@ fail:
 			    (intmax_t)buf_lblkno(bp), (uintmax_t)*lbns_remfree,
 			    (uintmax_t)bp->b_blkno,
 			    (uintmax_t)fsbtodb(fs, *blkp)));
-			bp->b_flags |= B_INVAL | B_RELBUF | B_NOCACHE;
-			bp->b_flags &= ~(B_ASYNC | B_CACHE);
+			buf_flags(bp) |= B_INVAL | B_RELBUF | B_NOCACHE;
+			buf_flags(bp) &= ~(B_ASYNC | B_CACHE);
 			buf_brelse(bp);
 		}
 		deallocated += fs->fs_bsize;
@@ -541,7 +541,7 @@ fail:
 				buf_bwrite(bp);
 			} else {
 				if (bp->b_bufsize == fs->fs_bsize)
-					bp->b_flags |= B_CLUSTEROK;
+					buf_flags(bp) |= B_CLUSTEROK;
 				buf_bdwrite(bp);
 			}
 		}
@@ -890,7 +890,7 @@ ffs_balloc_ufs2(struct vnode *vp, off_t startoffset, int size,
 			buf_bdwrite(bp);
 		} else if ((flags & IO_SYNC) == 0 && DOINGASYNC(vp)) {
 			if (bp->b_bufsize == fs->fs_bsize)
-				bp->b_flags |= B_CLUSTEROK;
+				buf_flags(bp) |= B_CLUSTEROK;
 			buf_bdwrite(bp);
 		} else {
 			if ((error = buf_bwrite(bp)) != 0)
@@ -970,7 +970,7 @@ retry:
 			buf_bdwrite(nbp);
 		} else if ((flags & IO_SYNC) == 0 && DOINGASYNC(vp)) {
 			if (nbp->b_bufsize == fs->fs_bsize)
-				nbp->b_flags |= B_CLUSTEROK;
+				nbuf_flags(bp) |= B_CLUSTEROK;
 			buf_bdwrite(nbp);
 		} else {
 			if ((error = buf_bwrite(nbp)) != 0) {
@@ -989,7 +989,7 @@ retry:
 			buf_bwrite(bp);
 		} else {
 			if (bp->b_bufsize == fs->fs_bsize)
-				bp->b_flags |= B_CLUSTEROK;
+				buf_flags(bp) |= B_CLUSTEROK;
 			buf_bdwrite(bp);
 		}
 	}
@@ -1060,7 +1060,7 @@ retry:
 			buf_bwrite(bp);
 		} else {
 			if (bp->b_bufsize == fs->fs_bsize)
-				bp->b_flags |= B_CLUSTEROK;
+				buf_flags(bp) |= B_CLUSTEROK;
 			buf_bdwrite(bp);
 		}
 		curthread_pflags_restore(saved_inbdflush);
@@ -1133,8 +1133,8 @@ fail:
 			    (intmax_t)buf_lblkno(bp), (uintmax_t)*lbns_remfree,
 			    (uintmax_t)bp->b_blkno,
 			    (uintmax_t)fsbtodb(fs, *blkp)));
-			bp->b_flags |= B_INVAL | B_RELBUF | B_NOCACHE;
-			bp->b_flags &= ~(B_ASYNC | B_CACHE);
+			buf_flags(bp) |= B_INVAL | B_RELBUF | B_NOCACHE;
+			buf_flags(bp) &= ~(B_ASYNC | B_CACHE);
 			buf_brelse(bp);
 		}
 		deallocated += fs->fs_bsize;
@@ -1156,7 +1156,7 @@ fail:
 				buf_bwrite(bp);
 			} else {
 				if (bp->b_bufsize == fs->fs_bsize)
-					bp->b_flags |= B_CLUSTEROK;
+					buf_flags(bp) |= B_CLUSTEROK;
 				buf_bdwrite(bp);
 			}
 		}
