@@ -40,20 +40,16 @@
 #ifndef _UFS_UFS_INODE_H_
 #define	_UFS_UFS_INODE_H_
 
+#include <sys/cdefs.h>
 #include <sys/lock.h>
 #include <sys/queue.h>
 #include <ufs/ufs/dinode.h>
 #include <ufs/ufs/quota.h>
-#ifdef DIAGNOSTIC
-#include <sys/stack.h>
-#endif
+#include <ufs/ufs/inode_lock.h>
 #include <libkern/OSAtomic.h>
 #include <stdatomic.h>
 
-struct lock;
-#ifndef _SYS_SEQC_H_
-typedef uint32_t seqc_t;
-#endif
+#include <freebsd/compat/vnode.h>
 
 #ifndef NOUNLINK
 #define NOUNLINK SF_NOUNLINK
@@ -66,6 +62,8 @@ typedef uint32_t seqc_t;
 #ifndef DOWHITEOUT
 #define DOWHITEOUT 0x00040000
 #endif
+
+#define SF_DATALESS_SNAPSHOT    1
 
 /*
  * This must agree with the definition in <ufs/ufs/dir.h>.
@@ -98,10 +96,13 @@ struct iown_tracker {
  * exclusive.
  */
 struct inode {
+    struct vnode_compat cvnode;
 	TAILQ_ENTRY(inode) i_nextsnap; /* snapshot file list. */
 	struct	vnode  *i_vnode;/* Vnode associated with this inode. */
 	struct 	ufsmount *i_ump;/* Ufsmount point associated with this inode. */
 	struct	 dquot *i_dquot[MAXQUOTAS]; /* Dquot structures. */
+    LIST_ENTRY(inode) i_hash;   /* Hash chain. */
+    
 	union {
 		struct dirhash *dirhash; /* Hashing for large directories. */
 		daddr_t *snapblklist;    /* Collect expunged snapshot blocks. */
@@ -149,23 +150,22 @@ struct inode {
 	u_int64_t i_size;	/* File byte count. */
 	u_int64_t i_gen;	/* Generation number. */
 	u_int32_t i_flags;	/* Status flags (chflags). */
+    uint32_t  i_lflags;
+    u_int32_t i_dataless_type;    /* Unsupported file types. */
 	u_int32_t i_uid;	/* File owner. */
 	u_int32_t i_gid;	/* File group. */
 	u_int16_t i_mode;	/* IFMT, permissions; see below. */
 	int16_t	  i_nlink;	/* File link count. */
-    
-    seqc_t    i_seqc;                /* i modification count */
-    unsigned  i_seqc_users;  /* i modifications pending */
-    struct lock *i_lock;      // inode lock
-    lck_mtx_t i_interlock;    // for VI_*
-    uint64_t  i_interlock_owner; // thread_id for owner of the interlock mutex
+
+    struct inode_lock *i_lock;      // inode lock
+    char i_name[NAME_MAX];
+#define i_bsize   i_ump->um_fs->fs_bsize
     LIST_ENTRY(inode)  i_hashlist;   /* Hash chain. */
-    unsigned i_hash; // FIXME: not sure how this hashtbl impl works, test it in userspace first
     int i_viflag;
 #define    VI_TEXT_REF      0x0001    /* Text ref grabbed use ref */
 #define    VI_MOUNT         0x0002    /* Mount in progress */
 #define    VI_DOINGINACT    0x0004    /* VOP_INACTIVE is in progress */
-#define    VI_OWEINACT      0x0008    /* Need to call inactive */
+#define    VI_NEEDINACT      0x0008    /* Need to call inactive */
 #define    VI_DEFINACT      0x0010    /* deferred inactive */
 };
 /*
@@ -183,9 +183,19 @@ struct inode {
 #define	IN_EA_LOCKWAIT	0x0100		/* Want extended attributes lock */
 #define	IN_TRUNCATED	0x0200		/* Journaled truncation pending. */
 #define	IN_UFS2		0x0400		/* UFS2 vs UFS1 */
-#define	IN_IBLKDATA	0x0800		/* datasync requires inode block
-					   update */
+#define	IN_IBLKDATA	0x0800		/* datasync requires inode block update */
 #define	IN_SIZEMOD	0x1000		/* Inode size has been modified */
+
+// L-flags, or inode state flags (L for location)
+#define INL_ALLOC        0x000002        /* inode is being created */
+#define INL_TRANSIT      0x000004        /* inode is getting recycled  */
+#define INL_LOOK         0x000008        /* inode is in dir lookup/readdir */
+#define INL_HASHED       0x000010        /* inode is hashed */
+
+/* Inode Wait flags */
+#define INL_WAIT_ALLOC   0x010000        /* waiting for creation */
+#define INL_WAIT_TRANSIT 0x020000        /* waiting for inode getting recycled  */
+#define INL_WAIT_LOOKUP  0x040000        /* waiting for lookup/readdir completion */
 
 #define PRINT_INODE_FLAGS "\20\20b16\17b15\16b14\15sizemod" \
 	"\14iblkdata\13is_ufs2\12truncated\11ea_lockwait\10ea_locked" \
@@ -208,8 +218,6 @@ struct inode {
 #define UFS_INODE_SET_MODE(ip, mode) do {			\
 	struct inode *_ip = (ip);				\
 	int _mode = (mode);					\
-								\
-	ASSERT_VOP_IN_SEQC(ITOV(_ip));				\
 	atomic_store_short(&(_ip)->i_mode, _mode);		\
 } while (0)
 
@@ -225,16 +233,16 @@ struct inode {
 
 #define UFS_INODE_SET_FLAG_SHARED(ip, flags) do {		\
 	struct inode *_ip = (ip);				\
-	struct vnode *_vp = ITOV(_ip);				\
+	struct vnode __unused *_vp = ITOV(_ip);				\
 	int _flags = (flags);					\
 								\
-	ASSERT_VI_UNLOCKED(_vp, __func__);			\
+	/*ASSERT_VI_UNLOCKED(_vp, __func__);*/			\
 	if ((_ip->i_flag & (_flags)) != _flags) {		\
-		VI_LOCK(_vp);					\
+		ixlock(_ip);					\
 		_ip->i_flag |= _flags;				\
 		if (_flags & UFS_INODE_FLAG_LAZY_MASK)		\
 			vlazy(_vp);				\
-		VI_UNLOCK(_vp);					\
+		iunlock(_ip);					\
 	}							\
 } while (0)
 
@@ -251,6 +259,16 @@ struct inode {
 #define	ITOFS(ip)	(ITOUMP(ip)->um_fs)
 #define	ITOVFS(ip)	(vnode_mount((ip)->i_vnode))
 
+#ifndef SF_DATALESS
+#define SF_DATALESS     0x40000000     /* file is dataless object */
+#endif
+
+__BEGIN_DECLS
+
+#ifdef __cplusplus
+#define _Bool bool
+#endif
+
 static inline _Bool
 I_IS_UFS1(const struct inode *ip)
 {
@@ -261,10 +279,9 @@ I_IS_UFS1(const struct inode *ip)
 static inline _Bool
 I_IS_UFS2(const struct inode *ip)
 {
-
 	return ((ip->i_flag & IN_UFS2) != 0);
 }
-
+__END_DECLS
 /*
  * The DIP macro is used to access fields in the dinode that are
  * not cached in the inode itself.
@@ -273,14 +290,15 @@ I_IS_UFS2(const struct inode *ip)
     (ip)->i_din2->d##field)
 #define	DIP_SET(ip, field, val) do {				\
 	if (I_IS_UFS1(ip))					\
-		(ip)->i_din1->d##field = (val); 		\
+		(ip)->i_din1->d##field = (typeof((ip)->i_din1->d##field))(val); 		\
 	else							\
-		(ip)->i_din2->d##field = (val); 		\
+		(ip)->i_din2->d##field = (typeof((ip)->i_din1->d##field))(val); 		\
 	} while (0)
 
 #define	SHORTLINK(ip)	(I_IS_UFS1(ip) ?			\
     (caddr_t)(ip)->i_din1->di_db : (caddr_t)(ip)->i_din2->di_db)
-#define	IS_SNAPSHOT(ip)		((ip)->i_flags & SF_SNAPSHOT)
+#define	IS_SNAPSHOT(ip)		(((ip)->i_flags & SF_DATALESS) &&  \
+                                (ip)->i_dataless_type == SF_DATALESS_SNAPSHOT)
 
 /*
  * Structure used to pass around logical block paths generated by
@@ -297,11 +315,10 @@ struct indir {
 #define	ITOV(ip)	((ip)->i_vnode)
 
 /* Determine if soft dependencies are being done */
-#define	DOINGSOFTDEP(vp)   \
-	((vfs_flags(vnode_mount(vp)) & (FBSD_MNT_SOFTDEP | FBSD_MNT_SUJ)) != 0)
-#define	MOUNTEDSOFTDEP(mp) ((vfs_flags((mp)) & (MNT_SOFTDEP | FBSD_MNT_SUJ)) != 0)
-#define	DOINGSUJ(vp)	   ((vfs_flags(vnode_mount((vp))) & FBSD_MNT_SUJ) != 0)
-#define	MOUNTEDSUJ(mp)	   ((vfs_flags((mp)) & MNT_SUJ) != 0)
+bool DOINGSOFTDEP(struct vnode*);
+bool MOUNTEDSOFTDEP(struct mount*);
+bool DOINGSUJ(struct vnode*);
+bool MOUNTEDSUJ(struct mount*);
 
 /* This overlays the fid structure (see mount.h). */
 struct ufid {

@@ -40,6 +40,10 @@
 #ifndef _UFS_UFS_DIR_H_
 #define	_UFS_UFS_DIR_H_
 
+#ifndef _KERNEL
+#define    roundup2(x, y)    (((x)+((y)-1))&(~((y)-1))) /* if y is powers of two */
+#endif
+
 /*
  * Theoretically, directories can be more than 2Gb in length, however, in
  * practice this seems unlikely. So, we define the type doff_t as a 32-bit

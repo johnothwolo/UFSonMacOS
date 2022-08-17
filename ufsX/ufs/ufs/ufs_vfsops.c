@@ -53,7 +53,7 @@ __FBSDID("$FreeBSD$");
 #include <sys/vnode.h>
 #include <sys/ubc.h>
 
-#include <freebsd/sys/compat.h>
+#include <freebsd/compat/compat.h>
 
 #include <ufs/ufs/extattr.h>
 #include <ufs/ufs/quota.h>
@@ -65,38 +65,30 @@ __FBSDID("$FreeBSD$");
 #include <ufs/ufs/dirhash.h>
 #endif
 
-UFS_MALLOC_DEFINE(M_UFSMNT, "ufs_mount", "UFS mount structure");
+MALLOC_DEFINE(M_UFSMNT, "ufs_mount", "UFS mount structure");
 
 /*
  * Return the root of a filesystem.
  */
 int
-ufs_root(mp, vpp, context)
-	struct mount *mp;
-	struct vnode **vpp;
-    vfs_context_t context;
+ufs_root(struct mount *mp, struct vnode **vpp, vfs_context_t context)
 {
 	struct vnode *nvp;
 	int error;
-    int flags = 0;
+    struct vfs_vget_args vargs = {0};
     
-	error = VFS_VGET(mp, (ino_t)UFS_ROOTINO, flags, &nvp, context);
+	error = VFS_VGET(mp, UFS_ROOTINO, &vargs, &nvp, context);
 	if (error)
 		return (error);
 	*vpp = nvp;
-	return (0);
+	trace_return (0);
 }
 
 /*
  * Do operations associated with quotas
  */
 int
-ufs_quotactl(mp, cmds, id, arg, ctx)
-	struct mount *mp;
-	int cmds;
-	uid_t id;
-	void *arg;
-    vfs_context_t ctx;
+ufs_quotactl(struct mount *mp, int cmds, uid_t id, caddr_t arg, vfs_context_t ctx)
 {
 #ifndef QUOTA
 	if ((cmds >> SUBCMDSHIFT) == Q_QUOTAON ||
@@ -190,8 +182,7 @@ ufs_quotactl(mp, cmds, id, arg, ctx)
  * Initial UFS filesystems, done only once.
  */
 int
-ufs_init(vfsp)
-	struct vfsconf *vfsp;
+ufs_init(struct vfsconf *vfsp)
 {
 
 #ifdef QUOTA
@@ -207,8 +198,7 @@ ufs_init(vfsp)
  * Uninitialise UFS filesystems, done before module unload.
  */
 int
-ufs_uninit(vfsp)
-	struct vfsconf *vfsp;
+ufs_uninit(struct vfsconf *vfsp)
 {
 
 #ifdef QUOTA
@@ -227,20 +217,20 @@ ufs_uninit(vfsp)
  * Call the VFS_CHECKEXP beforehand to verify access.
  */
 int
-ufs_fhtovp(mp, fhlen, ufhp, vpp, context)
-	struct mount *mp;
-    int fhlen;
-    struct ufid *ufhp;
-	struct vnode **vpp;
-    vfs_context_t context;
+ufs_fhtovp(
+	struct mount *mp,
+    int fhlen,
+    struct ufid *ufhp,
+	struct vnode **vpp,
+    vfs_context_t context)
 
 {
 	struct inode *ip;
 	struct vnode *nvp;
 	int error;
-    int flags = 0;
+    struct vfs_vget_args vargs = {0};
 
-	error = VFS_VGET(mp, ufhp->ufid_ino, flags, &nvp, context);
+	error = VFS_VGET(mp, ufhp->ufid_ino, &vargs, &nvp, context);
 	if (error) {
 		*vpp = NULLVP;
 		return (error);

@@ -4,10 +4,53 @@
 <dict>
 	<key>SchemeUserState</key>
 	<dict>
-		<key>ufsX.xcscheme_^#shared#^_</key>
+		<key>debugfs.xcscheme_^#shared#^_</key>
+		<dict>
+			<key>orderHint</key>
+			<integer>3</integer>
+		</dict>
+		<key>libufs.xcscheme_^#shared#^_</key>
+		<dict>
+			<key>orderHint</key>
+			<integer>4</integer>
+		</dict>
+		<key>mount_ufs.xcscheme_^#shared#^_</key>
 		<dict>
 			<key>orderHint</key>
 			<integer>0</integer>
+		</dict>
+		<key>newfs_ufs.xcscheme_^#shared#^_</key>
+		<dict>
+			<key>orderHint</key>
+			<integer>1</integer>
+		</dict>
+		<key>ufsX.xcscheme_^#shared#^_</key>
+		<dict>
+			<key>orderHint</key>
+			<integer>2</integer>
+		</dict>
+	</dict>
+	<key>SuppressBuildableAutocreation</key>
+	<dict>
+		<key>522D0762285E106D00F96211</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>52A6DD7C28663F6200C6A474</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>52C6F5FE2890D1E8006B8629</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>52F603BD289755B6006B8629</key>
+		<dict>
+			<key>primary</key>
+			<true/>
 		</dict>
 	</dict>
 </dict>

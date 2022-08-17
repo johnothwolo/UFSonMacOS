@@ -86,6 +86,9 @@
  */
 #define	UFS_WINO	((ino_t)1)
 
+#define UFS_SNAPDIR_INO (UFS_ROOTINO + 1) /* Inode for the snapshot directory. */
+#define UFS_SNAPDIR     ".snap"     /* snapshots are stored in the "/.snap" directory. */
+
 /*
  * The size of physical and logical block numbers and time fields in UFS.
  */

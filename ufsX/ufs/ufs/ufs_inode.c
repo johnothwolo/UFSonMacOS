@@ -49,7 +49,7 @@ __FBSDID("$FreeBSD$");
 #include <sys/mount.h>
 #include <sys/malloc.h>
 
-#include <freebsd/sys/compat.h>
+#include <freebsd/compat/compat.h>
 
 #include <ufs/ufs/extattr.h>
 #include <ufs/ufs/quota.h>
@@ -60,37 +60,36 @@ __FBSDID("$FreeBSD$");
 #include <ufs/ufs/dir.h>
 #include <ufs/ufs/dirhash.h>
 #endif
-#ifdef UFS_GJOURNAL
-#include <ufs/ufs/gjournal.h>
-#endif
 
 /*
  * Last reference to an inode.  If necessary, write or delete it.
  */
 int
-ufs_inactive(ap)
-	struct vnop_inactive_args /* {
+ufs_inactive(struct vnop_inactive_args *ap)
+    /* {
 		struct vnode *a_vp;
-	} */ *ap;
+	} */
 {
 	struct vnode *vp = ap->a_vp;
     struct inode *ip = VTOI(vp);
     struct ufsmount *ump = ITOUMP(ip);
     struct vfs_context *context = ap->a_context;
 	mode_t mode;
+    int locktype;
 	int error = 0;
 	off_t isize;
 	struct mount *mp;
 
+    trace_enter();
+    
 	mp = NULL;
+    locktype = inode_lock_owned(ip);
+
 	/*
 	 * Ignore inodes related to stale file handles.
 	 */
 	if (ip->i_mode == 0)
 		goto out;
-#ifdef UFS_GJOURNAL
-	ufs_gjournal_close(vp);
-#endif
 #ifdef QUOTA
 	/*
 	 * Before moving off the active list, we must be sure that
@@ -108,9 +107,9 @@ ufs_inactive(ap)
                 /* Cannot return before file is deleted */
                 (void) vn_start_secondary_write(vp, &mp, V_WAIT);
             } else {
-                VI_LOCK(vp);
-                if ((ump->um_kern_flag & (MNTK_SUSPEND2 | MNTK_SUSPENDED)) == 0) {
-                    VI_UNLOCK(vp);
+                ixlock(ip);
+                if ((ump->um_compat->mnt_flag & (MNTK_SUSPEND2 | MNTK_SUSPENDED)) == 0) {
+                    iunlock(ip);
                     goto loop;
                 }
                 /*
@@ -118,8 +117,8 @@ ufs_inactive(ap)
                  * let ffs_snapshot() clean up after
                  * it has resumed the file system.
                  */
-                ip->i_viflag |= VI_OWEINACT;
-                VI_UNLOCK(vp);
+                ip->i_viflag |= VI_NEEDINACT;
+                iunlock(ip);
                 return (0);
             }
         }
@@ -129,9 +128,9 @@ ufs_inactive(ap)
 	if (I_IS_UFS2(ip))
 		isize += ip->i_din2->di_extsize;
 	if (ip->i_effnlink <= 0 && isize && !UFS_RDONLY(ip))
-		error = UFS_TRUNCATE(vp, (off_t)0, IO_EXT | IO_NORMAL, context);
+		error = UFS_TRUNCATE(vp, (off_t)0, FREEBSD_IO_EXT | FREEBSD_IO_NORMAL, context);
 	if (ip->i_nlink <= 0 && ip->i_mode != 0 && !UFS_RDONLY(ip) &&
-	    (ip->i_viflag & VI_OWEINACT) == 0) {
+	    (ip->i_viflag & VI_NEEDINACT) == 0) {
 #ifdef QUOTA
 		if (!getinoquota(ip))
 			(void)chkiq(ip, -1, NOCRED, FORCE);
@@ -169,7 +168,7 @@ out:
 	 * If we are done with the inode, reclaim it
 	 * so that it can be reused immediately.
 	 */
-	if (ip->i_mode == 0 && (ip->i_viflag & VI_OWEINACT) == 0)
+	if (ip->i_mode == 0 && (ip->i_viflag & VI_NEEDINACT) == 0)
 		vnode_recycle(vp);
 
     return (error);
@@ -179,10 +178,10 @@ out:
  * Reclaim an inode so that it can be used for other purposes.
  */
 int
-ufs_reclaim(ap)
-	struct vnop_reclaim_args /* {
+ufs_reclaim(struct vnop_reclaim_args *ap)
+    /* {
 		struct vnode *a_vp;
-	} */ *ap;
+	} */
 {
 	struct vnode *vp = ap->a_vp;
 	struct inode *ip = VTOI(vp);
@@ -207,16 +206,16 @@ ufs_reclaim(ap)
 	/*
 	 * Remove the inode from its hash chain.
 	 */
-	vfs_hash_remove(vp);
+	ufs_hash_remove(ip);
     vnode_removefsref(vp);
         
 	/*
 	 * Lock the clearing of v_data so ffs_lock() can inspect it
 	 * prior to obtaining the lock.
 	 */
-	VI_LOCK(vp);
+	ixlock(ip);
     vnode_clearfsnode(vp);
-	VI_UNLOCK(vp);
+	iunlock(ip);
 	UFS_IFREE(ITOUMP(ip), ip);
 	return (0);
 }

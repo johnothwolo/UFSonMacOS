@@ -120,15 +120,11 @@ struct ufs_extattr_list_entry {
 
 struct ucred;
 struct ufs_extattr_per_mount {
-	lck_mtx_t	uepm_lock;
+	lck_mtx_t	*uepm_lock;
 	struct ufs_extattr_list_head	uepm_list;
 	struct ucred	*uepm_ucred;
 	int	uepm_flags;
 };
-
-struct vnop_getextattr_args;
-struct vnop_deleteextattr_args;
-struct vnop_setextattr_args;
 
 void	ufs_extattr_uepm_init(struct ufs_extattr_per_mount *uepm);
 void	ufs_extattr_uepm_destroy(struct ufs_extattr_per_mount *uepm);
@@ -137,9 +133,9 @@ int	ufs_extattr_autostart(struct mount *mp, vfs_context_t context);
 int	ufs_extattr_stop(struct mount *mp, vfs_context_t context);
 int	ufs_extattrctl(struct mount *mp, int cmd, struct vnode *filename,
 	    int attrnamespace, const char *attrname);
-int	ufs_getextattr(struct vnop_getextattr_args *ap);
-int	ufs_deleteextattr(struct vnop_deleteextattr_args *ap);
-int	ufs_setextattr(struct vnop_setextattr_args *ap);
+int	ufs_getextattr(struct vnop_getxattr_args *ap);
+int	ufs_deleteextattr(struct vnop_removexattr_args *ap);
+int	ufs_setextattr(struct vnop_setxattr_args *ap);
 void	ufs_extattr_vnode_inactive(struct vnode *vp);
 
 #endif /* !_KERNEL */

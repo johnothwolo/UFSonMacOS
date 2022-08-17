@@ -35,23 +35,27 @@
 #ifndef _UFS_UFS_UFSMOUNT_H_
 #define	_UFS_UFS_UFSMOUNT_H_
 
+#define UFS_NAME     "ufsX"
+
 /*
  * Arguments to mount UFS-based filesystems
  */
 struct ufs_args {
-	char	*fspec;			/* block special device to mount */
+    char            *fspec;       /* block special device to mount */
+    char            ufs_fspec[MAXPATHLEN]; /* block special device to mount */
+    uint64_t        ufs_mntflags; /* UFS specific mount flags */
+    int             ufs_uid;
+    int             ufs_gid;
+    int             ufs_mask;
+    int             ufs_fsckpid;
 	char _export[64];	/* network export information */
 };
 
 #ifdef _KERNEL
 
-#ifndef _UFS_UFS_EXTATTR_H_
-#error Include 'extattr.h' before 'ufsmount.h'
-#endif
-
 #include <kern/task.h>
 #include <sys/lock.h>
-
+#include <freebsd/compat/systm.h>
 #ifdef MALLOC_DECLARE
 MALLOC_DECLARE(M_UFSMNT);
 MALLOC_DECLARE(M_TRIM);
@@ -68,6 +72,7 @@ struct vnode;
 struct ufs_extattr_per_mount;
 struct jblocks;
 struct inodedep;
+struct ialloc_critical;
 
 TAILQ_HEAD(inodedeplst, inodedep);
 LIST_HEAD(bmsafemaphd, bmsafemap);
@@ -86,23 +91,23 @@ struct fsfail_task {
  *	c - set at allocation then constant until freed
  *	i - ufsmount interlock (UFS_LOCK / UFS_UNLOCK)
  *	q - associated quota file is locked
- *	r - ref to parent mount structure is held (vfs_busy_fbsd / vfs_unbusy)
+ *	r - ref to parent mount structure is held (vfs_busy / vfs_unbusy)
  *	u - managed by user process fsck_ufs
  */
 struct ufsmount {
+    u_int   um_devbsize;
 	struct	mount *um_mountp;		/* (r) filesystem vfs struct */
+    struct  bsdmount *um_compat;        /* (c) compatibility vfs struct */
 	dev_t          um_dev;			/* (r) device mounted */
-	struct	g_consumer *um_cp;		/* (r) GEOM access point */
-	struct	bufobj *um_bo;			/* (r) Buffer cache object */
-	struct	vnode *um_odevvp;		/* (r) devfs dev vnode */
-	struct	vnode *um_devvp;		/* (r) mntfs private vnode */
+    lck_mtx_t     *um_ihash_lock;
+	struct	vnode *um_devvp;		/* (r) devfs dev vnode */
 	u_long	um_fstype;			/* (c) type of filesystem */
 	struct	fs *um_fs;			/* (r) pointer to superblock */
-	struct	ufs_extattr_per_mount um_extattr; /* (c) extended attrs */
+	struct	ufs_extattr_per_mount *um_extattr; /* (c) extended attrs */
 	u_long	um_nindir;			/* (c) indirect ptrs per blk */
 	u_long	um_bptrtodb;			/* (c) indir disk block ptr */
 	u_long	um_seqinc;			/* (c) inc between seq blocks */
-	lck_mtx_t um_lock;			/* (c) Protects ufsmount & fs */
+	lck_mtx_t *um_lock;			/* (c) Protects ufsmount & fs */
 	pid_t	um_fsckpid;			/* (u) PID can do fsck sysctl */
 	struct	mount_softdeps *um_softdep;	/* (c) softdep mgmt structure */
 	struct	vnode *um_quotas[MAXQUOTAS];	/* (q) pointer to quota files */
@@ -123,7 +128,9 @@ struct ufsmount {
 	struct	taskqueue *um_trim_tq;		/* (c) trim request queue */
 	struct	trimlist_hashhead *um_trimhash;	/* (i) trimlist hash table */
 	u_long	um_trimlisthashsize;		/* (i) trim hash table size-1 */
-	struct	fsfail_task *um_fsfail_task;	/* (i) task for fsfail cleanup*/
+    struct ialloc_critical *um_vget_critical; /* ino numbers that have entered the critical allocation point  */
+    struct ialloc_critical *um_valloc_critical; /* ino numbers that have entered the critical allocation point  */
+	struct	fsfail_task um_fsfail_task;	/* (i) task for fsfail cleanup*/
 						/* (c) - below function ptrs */
 	int		(*um_balloc)(struct vnode *, off_t, int, struct vfs_context *, int, struct buf **);
 	int		(*um_blkatoff)(struct vnode *, off_t, char **, struct buf **);
@@ -134,17 +141,7 @@ struct ufsmount {
 	void	(*um_ifree)(struct ufsmount *, struct inode *);
 	int	    (*um_rdonly)(struct inode *);
 	void	(*um_snapgone)(struct inode *);
-	int	    (*um_check_blkno)(struct mount *, ino_t, daddr_t, int);
-    
-    /* MARK: - Freebsd compatibility on XNU */
-    uint64_t    um_kern_flag; // fbsd kern_flags. we sleep on this instead of our 'mp_flags' equiv.
-    int         um_ref;                 /* (i) Reference count for fbsd code */
-    thread_t    um_susp_owner;          /* (i) thread that suspended writes */
-    int         um_vfs_ops;             /* (i) pending vfs ops */
-    int         um_secondary_writes;    /* (i) # of secondary writes */
-    int         um_secondary_accwrites; /* (i) secondary wr. starts */
-    int         um_writeopcount;        /* (i) write syscalls pending */
-    /* MARK: - */
+	int	    (*um_check_blkno)(struct mount *, ino_t, daddr64_t, int, int);
 };
 
 /*
@@ -171,28 +168,14 @@ struct ufsmount {
 #define	UFS_IFREE(aa, bb) ((aa)->um_ifree(aa, bb))
 #define	UFS_RDONLY(aa) (ITOUMP(aa)->um_rdonly(aa))
 #define	UFS_SNAPGONE(aa) (ITOUMP(aa)->um_snapgone(aa))
-#define	UFS_CHECK_BLKNO(aa, bb, cc, dd) 		\
+#define	UFS_CHECK_BLKNO(aa, bb, cc, dd, locked) 		\
 	(VFSTOUFS(aa)->um_check_blkno == NULL ? 0 :	\
-	 VFSTOUFS(aa)->um_check_blkno(aa, bb, cc, dd))
+	 VFSTOUFS(aa)->um_check_blkno(aa, bb, cc, dd, locked))
 
-#define	UFS_LOCK(aa)	lck_mtx_lock(&(aa)->um_lock)
-#define	UFS_UNLOCK(aa)	lck_mtx_unlock(&(aa)->um_lock)
-#define	UFS_MTX(aa)	    (&(aa)->um_lock)
+#define	UFS_LOCK(aa)	lck_mtx_lock((aa)->um_lock)
+#define	UFS_UNLOCK(aa)	lck_mtx_unlock((aa)->um_lock)
+#define	UFS_MTX(aa)	    ((aa)->um_lock)
 
-/* MARK: - Freebsd compatibility on XNU */
-#define UFS_REF(mp)    do {                             \
-    LCK_MTX_ASSERT(UFS_MTX(ump), LCK_MTX_ASSERT_OWNED); \
-    (ump)->um_ref++;                                    \
-} while (0)
-
-#define UFS_REL(mp)    do {                             \
-    LCK_MTX_ASSERT(UFS_MTX(ump), LCK_MTX_ASSERT_OWNED); \
-    (ump)->um_ref--;                                    \
-    if ((ump)->um_ref == 0 && (ump)->um_vfs_ops)        \
-        wakeup((ump));                                  \
-} while (0)
-
-/* MARK: - */
 
 
 /*

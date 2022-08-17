@@ -251,7 +251,6 @@ struct worklist {
 /*
  * Various types of lists
  */
-LIST_HEAD(workhead, worklist);
 LIST_HEAD(dirremhd, dirrem);
 LIST_HEAD(diraddhd, diradd);
 LIST_HEAD(newblkhd, newblk);
@@ -1044,7 +1043,7 @@ TAILQ_HEAD(indir_hashhead, freework);
  * Allocated at mount and freed at unmount.
  */
 struct mount_softdeps {
-	lck_rw_t         sd_fslock;		/* softdep lock */
+	lck_mtx_t       *sd_fslock;		/* softdep lock */
 	struct	workhead sd_workitem_pending;	/* softdep work queue */
 	struct	worklist *sd_worklist_tail;	/* Tail pointer for above */
 	struct	workhead sd_journal_pending;	/* journal work queue */
@@ -1070,9 +1069,9 @@ struct mount_softdeps {
 	int	sd_deps;			/* Total dependency count */
 	int	sd_accdeps;			/* accumulated dep count */
 	int	sd_req;				/* Wakeup when deps hits 0. */
-	int	sd_flags;			/* comm with flushing thread */
+	int	sd_flags;			/* comm with flushing vfs_context */
 	int	sd_cleanups;			/* Calls to cleanup */
-	struct	thread *sd_flushtd;		/* thread handling flushing */
+	thread_t sd_flushtd;		/* thread handling flushing */
 	TAILQ_ENTRY(mount_softdeps) sd_next;	/* List of softdep filesystem */
 	struct	ufsmount *sd_ump;		/* our ufsmount structure */
 	u_long	sd_curdeps[D_LAST + 1];		/* count of current deps */

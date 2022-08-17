@@ -44,7 +44,7 @@ __FBSDID("$FreeBSD$");
 #include <sys/mount.h>
 #include <sys/vnode.h>
 #include <sys/types.h>
-#include <sys/acl.h>
+#include <compat/acl.h>
 #include <sys/event.h>
 #include <sys/xattr.h>
 #include <sys/proc.h>
@@ -58,7 +58,7 @@ __FBSDID("$FreeBSD$");
 #include <ufs/ufs/ufs_extern.h>
 #include <ufs/ffs/fs.h>
 
-#include <freebsd/sys/compat.h>
+#include <freebsd/compat/compat.h>
 
 #ifdef UFS_ACL
 
@@ -188,7 +188,7 @@ ufs_getacl_nfs4_internal(struct vnode *vp, struct acl *aclp, vfs_context_t conte
 		 * EPERM since the object DAC protections
 		 * are unsafe.
 		 */
-		printf("ufs_getacl_nfs4(): Loaded invalid ACL ("
+		log_debug("ufs_getacl_nfs4(): Loaded invalid ACL ("
 		    "%d bytes), inumber %llu on %s\n", len,
 		    (uintmax_t)ip->i_number, ITOFS(ip)->fs_fsmnt);
 
@@ -197,7 +197,7 @@ ufs_getacl_nfs4_internal(struct vnode *vp, struct acl *aclp, vfs_context_t conte
 
 	error = acl_nfs4_check(aclp, vnode_vtype(vp) == VDIR);
 	if (error) {
-		printf("ufs_getacl_nfs4(): Loaded invalid ACL "
+		log_debug("ufs_getacl_nfs4(): Loaded invalid ACL "
 		    "(failed acl_nfs4_check), inumber %llu on %s\n",
 		    (uintmax_t)ip->i_number, ITOFS(ip)->fs_fsmnt);
 
@@ -212,7 +212,7 @@ ufs_getacl_nfs4(struct vnop_getacl_args *ap)
 {
 	int error;
 
-	if ((vfs_flags(vnode_mount(ap->a_vp)) & FBSD_MNT_NFS4ACLS) == 0)
+	if ((vfs_flags(vnode_mount(ap->a_vp)) & FREEBSD_MNT_NFS4ACLS) == 0)
 		return (EINVAL);
 
 	error = VOP_ACCESSX(ap->a_vp, VREAD_ACL, ap->a_td->td_ucred, ap->a_td);
@@ -265,7 +265,7 @@ ufs_get_oldacl(acl_type_t type, struct oldacl *old, struct vnode *vp,
 		 * the ACL is corrupted.  Return EPERM since the object
 		 * DAC protections are unsafe.
 		 */
-		printf("ufs_get_oldacl(): Loaded invalid ACL "
+		log_debug("ufs_get_oldacl(): Loaded invalid ACL "
 		    "(len = %d), inumber %llu on %s\n", len,
 		    (uintmax_t)ip->i_number, ITOFS(ip)->fs_fsmnt);
 		return (EPERM);
@@ -292,7 +292,7 @@ ufs_getacl_posix1e(struct vnop_getacl_args *ap)
 	 * XXX: If ufs_getacl() should work on file systems not supporting
 	 * ACLs, remove this check.
 	 */
-	if ((vfs_flags(vnode_mount(ap->a_vp)) & FBSD_MNT_ACLS) == 0)
+	if ((vfs_flags(vnode_mount(ap->a_vp)) & FREEBSD_MNT_ACLS) == 0)
 		return (EINVAL);
 
 	old = malloc(sizeof(*old), M_ACL, M_WAITOK | M_ZERO);
@@ -356,17 +356,17 @@ ufs_getacl_posix1e(struct vnop_getacl_args *ap)
 }
 
 int
-ufs_getacl(ap)
-	struct vnop_getacl_args /* {
+ufs_getacl(struct vnop_getacl_args *ap)
+    /* {
 		struct vnode *vp;
 		acl_type_t type;
 		struct acl *aclp;
 		struct ucred *cred;
 		vfs_context_t context;
-	} */ *ap;
+	} */
 {
 
-	if ((vfs_flags(vnode_mount(ap->a_vp)) & (FBSD_MNT_ACLS | FBSD_MNT_NFS4ACLS)) == 0)
+	if ((vfs_flags(vnode_mount(ap->a_vp)) & (FREEBSD_MNT_ACLS | FREEBSD_MNT_NFS4ACLS)) == 0)
 		return (EOPNOTSUPP);
 
 	if (ap->a_type == ACL_TYPE_NFS4)
@@ -388,7 +388,7 @@ ufs_setacl_nfs4_internal(struct vnode *vp, struct acl *aclp, vfs_context_t conte
 	mode_t mode, newmode;
 	struct inode *ip = VTOI(vp);
 
-	KASSERT(acl_nfs4_check(aclp, vnode_vtype(vp) == VDIR) == 0,
+	ASSERT(acl_nfs4_check(aclp, vnode_vtype(vp) == VDIR) == 0,
 	    ("invalid ACL passed to ufs_setacl_nfs4_internal"));
 
 	if (acl_nfs4_is_trivial(aclp, ip->i_uid)) {
@@ -440,10 +440,10 @@ ufs_setacl_nfs4(struct vnop_setacl_args *ap)
 	int error;
 	struct inode *ip = VTOI(ap->a_vp);
 
-	if ((vfs_flags(vnode_mount(ap->a_vp)) & FBSD_MNT_NFS4ACLS) == 0)
+	if ((vfs_flags(vnode_mount(ap->a_vp)) & FREEBSD_MNT_NFS4ACLS) == 0)
 		return (EINVAL);
 
-	if (vfs_flags(vnode_mount(ap->a_vp)) & FBSD_MNT_RDONLY)
+	if (vfs_flags(vnode_mount(ap->a_vp)) & MNT_RDONLY)
 		return (EROFS);
 
 	if (ap->a_aclp == NULL)
@@ -495,7 +495,7 @@ ufs_setacl_posix1e(struct vnop_setacl_args *ap)
 	int error;
 	struct oldacl *old;
 
-	if ((vfs_flags(vnode_mount(ap->a_vp)) & FBSD_MNT_ACLS) == 0)
+	if ((vfs_flags(vnode_mount(ap->a_vp)) & FREEBSD_MNT_ACLS) == 0)
 		return (EINVAL);
 
 	/*
@@ -523,7 +523,7 @@ ufs_setacl_posix1e(struct vnop_setacl_args *ap)
 			return (ENOTDIR);
 	}
 
-	if (vfs_flags(vnode_mount(ap->a_vp)) & FBSD_MNT_RDONLY)
+	if (vfs_flags(vnode_mount(ap->a_vp)) & MNT_RDONLY)
 		return (EROFS);
 
 	/*
@@ -608,16 +608,16 @@ ufs_setacl_posix1e(struct vnop_setacl_args *ap)
 }
 
 int
-ufs_setacl(ap)
-	struct vnop_setacl_args /* {
+ufs_setacl(struct vnop_setacl_args *ap)
+    /* {
 		struct vnode *vp;
 		acl_type_t type;
 		struct acl *aclp;
 		struct ucred *cred;
 		vfs_context_t context;
-	} */ *ap;
+	} */
 {
-	if ((vfs_flags(vnode_mount(ap->a_vp)) & (FBSD_MNT_ACLS | FBSD_MNT_NFS4ACLS)) == 0)
+	if ((vfs_flags(vnode_mount(ap->a_vp)) & (FREEBSD_MNT_ACLS | FREEBSD_MNT_NFS4ACLS)) == 0)
 		return (EOPNOTSUPP);
 
 	if (ap->a_type == ACL_TYPE_NFS4)
@@ -631,7 +631,7 @@ ufs_aclcheck_nfs4(struct vnop_aclcheck_args *ap)
 {
 	int is_directory = 0;
 
-	if ((vfs_flags(vnode_mount(ap->a_vp)) & FBSD_MNT_NFS4ACLS) == 0)
+	if ((vfs_flags(vnode_mount(ap->a_vp)) & FREEBSD_MNT_NFS4ACLS) == 0)
 		return (EINVAL);
 
 	/*
@@ -652,7 +652,7 @@ static int
 ufs_aclcheck_posix1e(struct vnop_aclcheck_args *ap)
 {
 
-	if ((vfs_flags(vnode_mount(ap->a_vp)) & FBSD_MNT_ACLS) == 0)
+	if ((vfs_flags(vnode_mount(ap->a_vp)) & FREEBSD_MNT_ACLS) == 0)
 		return (EINVAL);
 
 	/*
@@ -683,17 +683,17 @@ ufs_aclcheck_posix1e(struct vnop_aclcheck_args *ap)
  * Check the validity of an ACL for a file.
  */
 int
-ufs_aclcheck(ap)
-	struct vnop_aclcheck_args /* {
+ufs_aclcheck(struct vnop_aclcheck_args *ap)
+    /* {
 		struct vnode *vp;
 		acl_type_t type;
 		struct acl *aclp;
 		struct ucred *cred;
 		vfs_context_t context;
-	} */ *ap;
+	} */
 {
 
-	if ((vfs_flags(vnode_mount(ap->a_vp)) & (FBSD_MNT_ACLS | FBSD_MNT_NFS4ACLS)) == 0)
+	if ((vfs_flags(vnode_mount(ap->a_vp)) & (FREEBSD_MNT_ACLS | FREEBSD_MNT_NFS4ACLS)) == 0)
 		return (EOPNOTSUPP);
 
 	if (ap->a_type == ACL_TYPE_NFS4)

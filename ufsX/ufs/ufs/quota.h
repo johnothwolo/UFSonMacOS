@@ -148,7 +148,7 @@ struct dqhdr64 {
 struct dquot {
 	LIST_ENTRY(dquot) dq_hash;	/* (h) hash list */
 	TAILQ_ENTRY(dquot) dq_freelist;	/* (h) free list */
-	lck_mtx_t dq_lock;		/* lock for concurrency */
+	lck_mtx_t*dq_lock;		/* lock for concurrency */
 	u_int16_t dq_flags;		/* flags, see below */
 	u_int16_t dq_type;		/* quota type of this dquot */
 	u_int32_t dq_cnt;		/* (h) count of active references */
@@ -200,14 +200,14 @@ struct dquot {
 #define	DQREF(dq)	(dq)->dq_cnt++
 #endif
 
-#define	DQI_LOCK(dq)	lck_mtx_lock(&(dq)->dq_lock)
-#define	DQI_UNLOCK(dq)	lck_mtx_unlock(&(dq)->dq_lock)
+#define	DQI_LOCK(dq)	lck_mtx_lock((dq)->dq_lock)
+#define	DQI_UNLOCK(dq)	lck_mtx_unlock((dq)->dq_lock)
 
 #define	DQI_WAIT(dq, prio, msg) do {		\
 	while ((dq)->dq_flags & DQ_LOCK) {	\
 		(dq)->dq_flags |= DQ_WANT;	\
 		(void) msleep((dq),		\
-		    &(dq)->dq_lock, (prio), (msg), 0); \
+		    (dq)->dq_lock, (prio), (msg), 0); \
 	}					\
 } while (0)
 
@@ -231,30 +231,22 @@ void	dquninit(void);
 int	getinoquota(struct inode *);
 int	qsync(struct mount *);
 int	qsyncvp(struct vnode *);
-int	quotaoff(struct thread *, struct mount *, int);
+int	quotaoff(struct vfs_context *, struct mount *, int);
 int	quotaon(struct vfs_context *, struct mount *, int, void *);
-int	getquota32(struct thread *, struct mount *, u_long, int, void *);
-int	setquota32(struct thread *, struct mount *, u_long, int, void *);
-int	setuse32(struct thread *, struct mount *, u_long, int, void *);
-int	getquota(struct thread *, struct mount *, u_long, int, void *);
-int	setquota(struct thread *, struct mount *, u_long, int, void *);
-int	setuse(struct thread *, struct mount *, u_long, int, void *);
-int	getquotasize(struct thread *, struct mount *, u_long, int, void *);
-int ufs_quotactl(struct mount *mp, int cmds, uid_t id, void *arg, vfs_context_t ctx);
+int	getquota32(struct vfs_context *, struct mount *, u_long, int, void *);
+int	setquota32(struct vfs_context *, struct mount *, u_long, int, void *);
+int	setuse32(struct vfs_context *, struct mount *, u_long, int, void *);
+int	getquota(struct vfs_context *, struct mount *, u_long, int, void *);
+int	setquota(struct vfs_context *, struct mount *, u_long, int, void *);
+int	setuse(struct vfs_context *, struct mount *, u_long, int, void *);
+int	getquotasize(struct vfs_context *, struct mount *, u_long, int, void *);
+int ufs_quotactl(struct mount *mp, int cmds, uid_t id, caddr_t arg, vfs_context_t ctx);
 
 #ifdef SOFTUPDATES
 int	quotaref(struct vnode *, struct dquot **);
 void	quotarele(struct dquot **);
 void	quotaadj(struct dquot **, struct ufsmount *, int64_t);
 #endif /* SOFTUPDATES */
-
-#else /* !_KERNEL */
-
-#include <sys/cdefs.h>
-
-__BEGIN_DECLS
-int	quotactl(const char *, int, int, void *);
-__END_DECLS
 
 #endif /* _KERNEL */
 

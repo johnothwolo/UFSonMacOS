@@ -40,6 +40,8 @@
 #else
 
 struct buf;
+struct bufpriv;
+struct bufobj;
 struct cg;
 struct fid;
 struct fs;
@@ -51,6 +53,7 @@ struct sockaddr;
 struct statfs;
 struct ucred;
 struct vnode;
+struct vfs_context;
 struct vnop_fsync_args;
 struct vnop_reallocblks_args;
 struct workhead;
@@ -58,9 +61,9 @@ struct workhead;
 int	ffs_alloc(struct inode *, ufs2_daddr_t, ufs2_daddr_t, int, int,
 	    struct ucred *, ufs2_daddr_t *);
 int	ffs_balloc_ufs1(struct vnode *a_vp, off_t a_startoffset, int a_size,
-            struct ucred *a_cred, int a_flags, struct buf **a_bpp);
+            struct vfs_context *a_context, int a_flags, struct buf **a_bpp);
 int	ffs_balloc_ufs2(struct vnode *a_vp, off_t a_startoffset, int a_size,
-            struct ucred *a_cred, int a_flags, struct buf **a_bpp);
+            struct vfs_context *a_context, int a_flags, struct buf **a_bpp);
 void	ffs_blkfree(struct ufsmount *, struct fs *, struct vnode *,
 	    ufs2_daddr_t, long, ino_t, enum vtype, struct workhead *, u_long);
 ufs2_daddr_t ffs_blkpref_ufs1(struct inode *, ufs_lbn_t, int, ufs1_daddr_t *);
@@ -73,7 +76,7 @@ void	ffs_clrblock(struct fs *, u_char *, ufs1_daddr_t);
 void	ffs_clusteracct(struct fs *, struct cg *, ufs1_daddr_t, int);
 void	ffs_bdflush(struct bufobj *, struct buf *);
 int	ffs_copyonwrite(struct vnode *, struct buf *);
-int	ffs_flushfiles(struct mount *, int, struct thread *);
+int	ffs_flushfiles(struct mount *, int, struct vfs_context *);
 void	ffs_fragacct(struct fs *, int, int32_t [], int);
 int	ffs_freefile(struct ufsmount *, struct fs *, struct vnode *, ino_t,
 	    int, struct workhead *);
@@ -87,11 +90,9 @@ int	ffs_own_mount(const struct mount *mp);
 int	ffs_reallocblks(struct vnop_reallocblks_args *);
 int	ffs_realloccg(struct inode *, ufs2_daddr_t, ufs2_daddr_t,
 	    ufs2_daddr_t, int, int, int, struct ucred *, struct buf **);
-int	ffs_reload(struct mount *, struct thread *, int);
-int	ffs_sbget(void *, struct fs **, off_t, struct malloc_type *,
-	    int (*)(void *, off_t, void **, int));
-int	ffs_sbput(void *, struct fs *, off_t, int (*)(void *, off_t, void *,
-	    int));
+int	ffs_reload(struct mount *, struct vfs_context *, int);
+int	ffs_sbget(void *, struct fs **, off_t, int, int (*)(void *, off_t, void **, int));
+int	ffs_sbput(void *, struct fs *, off_t, int (*)(void *, off_t, void *, int));
 int	ffs_sbupdate(struct ufsmount *, int, int);
 void	ffs_setblock(struct fs *, u_char *, ufs1_daddr_t);
 int	ffs_snapblkfree(struct fs *, struct vnode *, ufs2_daddr_t, long, ino_t,
@@ -104,20 +105,21 @@ void	ffs_susp_initialize(void);
 void	ffs_susp_uninitialize(void);
 void	ffs_sync_snap(struct mount *, int);
 int	ffs_syncvnode(struct vnode *vp, int waitfor, int flags);
-int	ffs_truncate(struct vnode *, off_t, int, struct ucred *);
+int	ffs_truncate(struct vnode *, off_t, int, struct vfs_context *);
 int	ffs_update(struct vnode *, int);
 void	ffs_update_dinode_ckhash(struct fs *, struct ufs2_dinode *);
 int	ffs_verify_dinode_ckhash(struct fs *, struct ufs2_dinode *);
-int	ffs_valloc(struct vnode *, int, struct ucred *, struct vnode **);
+int	ffs_valloc(struct vnode *, int, struct vfs_context *, struct vnode **);
 int	ffs_vfree(struct vnode *, ino_t, int);
 int ffs_vget(struct mount *, ino64_t, vnode_t *, vfs_context_t );
 void	process_deferred_inactive(struct mount *mp);
 int	ffs_fsfail_cleanup(struct ufsmount *, int);
 int	ffs_fsfail_cleanup_locked(struct ufsmount *, int);
-int	ffs_breadz(struct ufsmount *, struct vnode *, daddr_t, daddr_t, int,
-	    daddr_t *, int *, int, struct ucred *, int, void (*)(struct buf *),
-	    struct buf **);
-
+int	ffs_bread(struct ufsmount *, struct vnode *, daddr64_t, daddr64_t, int,
+              daddr64_t *, int *, int, struct ucred *, int, void (*)(struct buf *),
+              struct buf **);
+int ffs_meta_bread(struct ufsmount *, struct vnode *, daddr64_t, int,
+                   struct ucred *, int, void (*)(struct buf *), struct buf **);
 /*
  * Flags to ffs_vgetf
  */
@@ -131,12 +133,6 @@ int	ffs_breadz(struct ufsmount *, struct vnode *, daddr_t, daddr_t, int,
 #define	FFSR_UNSUSPEND	0x0002
 
 /*
- * Request standard superblock location in ffs_sbget
- */
-#define	STDSB			-1	/* Fail if check-hash is bad */
-#define	STDSB_NOHASHFAIL	-2	/* Ignore check-hash failure */
-
-/*
  * Definitions for TRIM interface
  *
  * Special keys and recommended hash table size
@@ -146,10 +142,6 @@ int	ffs_breadz(struct ufsmount *, struct vnode *, daddr_t, daddr_t, int,
 #define	FIRST_VALID_KEY	3	/* first valid key describing a block range */
 #define	MAXTRIMIO	1024	/* maximum expected outstanding trim requests */
 
-extern struct vnop_vector ffs_vnodeops1;
-extern struct vnop_vector ffs_fifoops1;
-extern struct vnop_vector ffs_vnodeops2;
-extern struct vnop_vector ffs_fifoops2;
 
 /*
  * Soft update function prototypes.
@@ -161,12 +153,12 @@ void	softdep_get_depcounts(struct mount *, int *, int *);
 void	softdep_initialize(void);
 void	softdep_uninitialize(void);
 int	softdep_mount(struct vnode *, struct mount *, struct fs *,
-	    struct ucred *);
+	    struct vfs_context *);
 void	softdep_unmount(struct mount *);
 void	softdep_handle_error(struct buf *);
 int	softdep_move_dependencies(struct buf *, struct buf *);
-int	softdep_flushworklist(struct mount *, int *, struct thread *);
-int	softdep_flushfiles(struct mount *, int, struct thread *);
+int	softdep_flushworklist(struct mount *, int *, struct vfs_context *);
+int	softdep_flushfiles(struct mount *, int, struct vfs_context *);
 void	softdep_update_inodeblock(struct inode *, struct buf *, int);
 void	softdep_load_inodeblock(struct inode *);
 void	softdep_freefile(struct vnode *, ino_t, int);
@@ -234,6 +226,16 @@ struct snapdata {
 	daddr_t *sn_blklist;
 	lck_mtx_t *sn_lock;
 };
+
+// ffs_ialloc_critical.cpp
+__BEGIN_DECLS
+struct ialloc_critical* ialloc_critical_new(void);
+void ialloc_critical_free(struct ialloc_critical *crit);
+void ialloc_critical_wait(struct ialloc_critical* crit, ino64_t ino);
+bool ialloc_is_critical(struct ialloc_critical* crit, ino64_t ino);
+void ialloc_critical_enter(struct ialloc_critical* crit, ino64_t ino);
+void ialloc_critical_leave(struct ialloc_critical* crit, ino64_t ino);
+__END_DECLS
 
 #endif /* _KERNEL */
 

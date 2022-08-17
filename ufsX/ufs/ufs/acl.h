@@ -40,6 +40,7 @@
 #ifdef _KERNEL
 
 struct acl;
+struct inode;
 struct vnop_getacl_args;
 struct vnop_setacl_args;
 struct vnop_aclcheck_args;

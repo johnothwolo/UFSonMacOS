@@ -1,0 +1,14 @@
+Update Dependency Rules:
+
+1) Never point to a structure before it has been initialized (e.g., an inode must be initialized before
+a directory entry references it).
+
+2) Never re-use a resource before nullifying all
+previous pointers to it (e.g., an inode’s pointer
+to a data block must be nullified before that disk
+block may be re-allocated for a new inode).
+
+3) Never reset the old pointer to a live resource
+before the new pointer has been set (e.g., when
+renaming a file, do not remove the old name for an
+inode until after the new name has been written).

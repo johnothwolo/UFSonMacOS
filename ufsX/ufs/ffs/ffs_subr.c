@@ -36,6 +36,25 @@ __FBSDID("$FreeBSD$");
 
 #include <sys/param.h>
 
+#ifndef _KERNEL
+
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+#include <time.h>
+#include <sys/errno.h>
+#include <ufs/ufs/dinode.h>
+#include <ufs/ffs/fs.h>
+
+uint32_t calculate_crc32c(uint32_t, const void *, size_t);
+uint32_t ffs_calc_sbhash(struct fs *);
+struct malloc_type;
+#define UFS_MALLOC(size, type, flags) malloc(size)
+#define UFS_FREE(ptr, type) free(ptr)
+#define log_debug(a...)
+#define panic(a...)
+#define trace_return(n) return (n)
+#else /* _KERNEL */
 #include <sys/systm.h>
 #include <sys/lock.h>
 #include <sys/malloc.h>
@@ -46,8 +65,7 @@ __FBSDID("$FreeBSD$");
 
 #include <mach/mach_time.h>
 #include <libkern/libkern.h> // crc32
-#include <freebsd/sys/compat.h>
-
+#include <freebsd/compat/compat.h>
 #include <ufs/ufs/quota.h>
 #include <ufs/ufs/inode.h>
 #include <ufs/ufs/extattr.h>
@@ -56,8 +74,9 @@ __FBSDID("$FreeBSD$");
 #include <ufs/ffs/ffs_extern.h>
 #include <ufs/ffs/fs.h>
 
-#define UFS_MALLOC(size, type, flags)   _MALLOC(size, type, flags)
-#define UFS_FREE(ptr, type)             _FREE(ptr, type)
+#define UFS_MALLOC(size, type, flags)   malloc(size, type, flags)
+#define UFS_FREE(ptr, type)             free(ptr, type)
+#endif /* _KERNEL */
 
 /*
  * Verify an inode check-hash.
@@ -71,7 +90,7 @@ ffs_verify_dinode_ckhash(struct fs *fs, struct ufs2_dinode *dip)
 	 * Return success if unallocated or we are not doing inode check-hash.
 	 */
 	if (dip->di_mode == 0 || (fs->fs_metackhash & CK_INODE) == 0)
-		return (0);
+		trace_return (0);
 	/*
 	 * Exclude di_ckhash from the crc32 calculation, e.g., always use
 	 * a check-hash value of zero when calculating the check-hash.
@@ -81,8 +100,8 @@ ffs_verify_dinode_ckhash(struct fs *fs, struct ufs2_dinode *dip)
 	ckhash = calculate_crc32c(~0L, (void *)dip, sizeof(*dip));
 	dip->di_ckhash = save_ckhash;
 	if (save_ckhash == ckhash)
-		return (0);
-	return (EINVAL);
+		trace_return (0);
+	trace_return (EINVAL);
 }
 
 /*
@@ -130,9 +149,8 @@ static int readsuper(void *, struct fs **, off_t, int, int,
  *         The administrator must complete newfs before using this volume.
  */
 int
-ffs_sbget(void *devfd, struct fs **fsp, off_t altsblock,
-    struct malloc_type *_filltype,
-    int (*readfunc)(void *devfd, off_t loc, void **bufp, int size))
+ffs_sbget(void *devfd, struct fs **fsp, off_t altsblock, int _filltype,
+          int (*readfunc)(void *devfd, off_t loc, void **bufp, int size))
 {
 	struct fs *fs;
 	struct fs_summary_info *fs_si;
@@ -141,35 +159,32 @@ ffs_sbget(void *devfd, struct fs **fsp, off_t altsblock,
 	int32_t *lp;
 	int chkhash;
 	char *buf;
-    int filltype = M_TEMP;
 
 	fs = NULL;
 	*fsp = NULL;
 	if (altsblock >= 0) {
-		if ((error = readsuper(devfd, &fs, altsblock, 1, 0,
-		     readfunc)) != 0) {
+		if ((error = readsuper(devfd, &fs, altsblock, 1, 0, readfunc)) != 0) {
 			if (fs != NULL)
-				UFS_FREE(fs, filltype);
-			return (error);
+                UFS_FREE(fs, _filltype);
+			trace_return (error);
 		}
 	} else {
 		chkhash = 1;
 		if (altsblock == STDSB_NOHASHFAIL)
 			chkhash = 0;
 		for (i = 0; sblock_try[i] != -1; i++) {
-			if ((error = readsuper(devfd, &fs, sblock_try[i], 0,
-			     chkhash, readfunc)) == 0)
+			if ((error = readsuper(devfd, &fs, sblock_try[i], 0, chkhash, readfunc)) == 0)
 				break;
 			if (fs != NULL) {
-				UFS_FREE(fs, filltype);
+                UFS_FREE(fs, _filltype);
 				fs = NULL;
 			}
 			if (error == ENOENT)
 				continue;
-			return (error);
+			trace_return (error);
 		}
 		if (sblock_try[i] == -1)
-			return (ENOENT);
+			trace_return (ENOENT);
 	}
 	/*
 	 * Read in the superblock summary information.
@@ -180,16 +195,16 @@ ffs_sbget(void *devfd, struct fs **fsp, off_t altsblock,
 		size += fs->fs_ncg * sizeof(int32_t);
 	size += fs->fs_ncg * sizeof(u_int8_t);
 	/* When running in libufs or libsa, UFS_MALLOC may fail */
-	if ((fs_si = UFS_MALLOC(sizeof(*fs_si), filltype, M_WAITOK)) == NULL) {
-		UFS_FREE(fs, filltype);
-		return (ENOSPC);
+	if ((fs_si = UFS_MALLOC(sizeof(*fs_si), _filltype, M_WAITOK)) == NULL) {
+        UFS_FREE(fs, _filltype);
+		trace_return (ENOSPC);
 	}
 	bzero(fs_si, sizeof(*fs_si));
 	fs->fs_si = fs_si;
-	if ((space = UFS_MALLOC(size, filltype, M_WAITOK)) == NULL) {
-		UFS_FREE(fs->fs_si, filltype);
-		UFS_FREE(fs, filltype);
-		return (ENOSPC);
+	if ((space = UFS_MALLOC(size, _filltype, M_WAITOK)) == NULL) {
+        UFS_FREE(fs->fs_si, _filltype);
+        UFS_FREE(fs, _filltype);
+		trace_return (ENOSPC);
 	}
 	fs->fs_csp = (struct csum *)space;
 	for (i = 0; i < blks; i += fs->fs_frag) {
@@ -198,17 +213,17 @@ ffs_sbget(void *devfd, struct fs **fsp, off_t altsblock,
 			size = (blks - i) * fs->fs_fsize;
 		buf = NULL;
 		error = (*readfunc)(devfd,
-		    dbtob(fsbtodb(fs, fs->fs_csaddr + i), fs->fs_bsize), (void **)&buf, size);
+		    dbtob(fsbtodb(fs, fs->fs_csaddr + i), DEV_BSIZE), (void **)&buf, size);
 		if (error) {
 			if (buf != NULL)
-				UFS_FREE(buf, filltype);
-			UFS_FREE(fs->fs_csp, filltype);
-			UFS_FREE(fs->fs_si, filltype);
-			UFS_FREE(fs, filltype);
-			return (error);
+                UFS_FREE(buf, _filltype); // TODO: check the size here.
+			UFS_FREE(fs->fs_csp,_filltype);
+            UFS_FREE(fs->fs_si, _filltype);
+            UFS_FREE(fs, _filltype);
+			trace_return (error);
 		}
 		memcpy(space, buf, size);
-		UFS_FREE(buf, filltype);
+        UFS_FREE(buf, _filltype); // TODO: check the size here.
 		space += size;
 	}
 	if (fs->fs_contigsumsize > 0) {
@@ -221,7 +236,7 @@ ffs_sbget(void *devfd, struct fs **fsp, off_t altsblock,
 	fs->fs_contigdirs = (u_int8_t *)space;
 	bzero(fs->fs_contigdirs, size);
 	*fsp = fs;
-	return (0);
+	trace_return (0);
 }
 
 /*
@@ -238,10 +253,10 @@ readsuper(void *devfd, struct fs **fsp, off_t sblockloc, int isaltsblk,
 
 	error = (*readfunc)(devfd, sblockloc, (void **)fsp, SBLOCKSIZE);
 	if (error != 0)
-		return (error);
+		trace_return (error);
 	fs = *fsp;
 	if (fs->fs_magic == FS_BAD_MAGIC)
-		return (EINVAL);
+		trace_return (EINVAL);
 	if (((fs->fs_magic == FS_UFS1_MAGIC && (isaltsblk ||
 	      sblockloc <= SBLOCK_UFS1)) ||
 	     (fs->fs_magic == FS_UFS2_MAGIC && (isaltsblk ||
@@ -264,25 +279,26 @@ readsuper(void *devfd, struct fs **fsp, off_t sblockloc, int isaltsblk,
 		fs->fs_metackhash &= CK_SUPPORTED;
 		fs->fs_flags &= FS_SUPPORTED;
 		if (fs->fs_ckhash != (ckhash = ffs_calc_sbhash(fs))) {
-			ufs_debug("Superblock check-hash failed: recorded "
+			log_debug("Superblock check-hash failed: recorded "
 			    "check-hash 0x%x != computed check-hash 0x%x%s\n",
 			    fs->fs_ckhash, ckhash,
 			    chkhash == 0 ? " (Ignored)" : "");
 			if (chkhash == 0) {
 				fs->fs_flags |= FS_NEEDSFSCK;
 				fs->fs_fmod = 1;
-				return (0);
+				trace_return (0);
 			}
 			fs->fs_fmod = 0;
-			return (ESTALE);
+			trace_return (ESTALE);
 		}
 		/* Have to set for old filesystems that predate this field */
 		fs->fs_sblockactualloc = sblockloc;
 		/* Not yet any summary information */
 		fs->fs_si = NULL;
-		return (0);
+		trace_return (0);
 	}
-	return (ENOENT);
+    panic("UFS Magic mismatch MAGIC=%x, sblockloc=%lld", fs->fs_magic, sblockloc);
+	trace_return (ENOENT);
 }
 
 /*
@@ -300,6 +316,7 @@ ffs_sbput(void *devfd, struct fs *fs, off_t loc,
 {
 	int i, error, blks, size;
 	uint8_t *space;
+    off_t diskb;
 
 	/*
 	 * If there is summary information, write it first, so if there
@@ -312,8 +329,9 @@ ffs_sbput(void *devfd, struct fs *fs, off_t loc,
 			size = fs->fs_bsize;
 			if (i + fs->fs_frag > blks)
 				size = (blks - i) * fs->fs_fsize;
-			if ((error = (*writefunc)(devfd, dbtob(fsbtodb(fs, fs->fs_csaddr + i), size), space, size)) != 0)
-				return (error);
+            diskb = dbtob(fsbtodb(fs, fs->fs_csaddr + i), DEV_BSIZE);
+			if ((error = (*writefunc)(devfd, diskb, space, size)) != 0)
+				trace_return (error);
 			space += size;
 		}
 	}
@@ -335,7 +353,7 @@ ffs_sbput(void *devfd, struct fs *fs, off_t loc,
 	fs->fs_ckhash = ffs_calc_sbhash(fs);
 	error = (*writefunc)(devfd, loc, fs, fs->fs_sbsize);
 #endif /* _KERNEL */
-	return (error);
+	trace_return (error);
 }
 
 /*
@@ -361,7 +379,7 @@ ffs_calc_sbhash(struct fs *fs)
 	 * just accept what is there.
 	 */
 	if ((fs->fs_metackhash & CK_SUPERBLOCK) == 0)
-		return (fs->fs_ckhash);
+		trace_return (fs->fs_ckhash);
 
 	save_ckhash = fs->fs_ckhash;
 	fs->fs_ckhash = 0;
@@ -371,7 +389,7 @@ ffs_calc_sbhash(struct fs *fs)
 	 */
 	ckhash = calculate_crc32c(~0L, (void *)fs, fs->fs_sbsize);
 	fs->fs_ckhash = save_ckhash;
-	return (ckhash);
+	trace_return (ckhash);
 }
 
 /*
@@ -417,23 +435,23 @@ ffs_isblock(struct fs *fs, unsigned char *cp, ufs1_daddr_t h)
 
 	switch ((int)fs->fs_frag) {
 	case 8:
-		return (cp[h] == 0xff);
+		trace_return (cp[h] == 0xff);
 	case 4:
 		mask = 0x0f << ((h & 0x1) << 2);
-		return ((cp[h >> 1] & mask) == mask);
+		trace_return ((cp[h >> 1] & mask) == mask);
 	case 2:
 		mask = 0x03 << ((h & 0x3) << 1);
-		return ((cp[h >> 2] & mask) == mask);
+		trace_return ((cp[h >> 2] & mask) == mask);
 	case 1:
 		mask = 0x01 << (h & 0x7);
-		return ((cp[h >> 3] & mask) == mask);
+		trace_return ((cp[h >> 3] & mask) == mask);
 	default:
 #ifdef _KERNEL
 		panic("ffs_isblock");
 #endif
 		break;
 	}
-	return (0);
+	trace_return (0);
 }
 
 /*
@@ -445,20 +463,20 @@ ffs_isfreeblock(struct fs *fs, u_char *cp, ufs1_daddr_t h)
 
 	switch ((int)fs->fs_frag) {
 	case 8:
-		return (cp[h] == 0);
+		trace_return (cp[h] == 0);
 	case 4:
-		return ((cp[h >> 1] & (0x0f << ((h & 0x1) << 2))) == 0);
+		trace_return ((cp[h >> 1] & (0x0f << ((h & 0x1) << 2))) == 0);
 	case 2:
-		return ((cp[h >> 2] & (0x03 << ((h & 0x3) << 1))) == 0);
+		trace_return ((cp[h >> 2] & (0x03 << ((h & 0x3) << 1))) == 0);
 	case 1:
-		return ((cp[h >> 3] & (0x01 << (h & 0x7))) == 0);
+		trace_return ((cp[h >> 3] & (0x01 << (h & 0x7))) == 0);
 	default:
 #ifdef _KERNEL
 		panic("ffs_isfreeblock");
 #endif
 		break;
 	}
-	return (0);
+	trace_return (0);
 }
 
 /*

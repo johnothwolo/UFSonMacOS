@@ -7,28 +7,22 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		52224FDC285E9D8000E70BD5 /* ufs_lookup.c in Sources */ = {isa = PBXBuildFile; fileRef = 522D0771285E107E00F96211 /* ufs_lookup.c */; };
-		52224FDF285EACA900E70BD5 /* vn_printf.c in Sources */ = {isa = PBXBuildFile; fileRef = 52224FDE285EACA900E70BD5 /* vn_printf.c */; };
-		52224FE2285EBD0700E70BD5 /* vfs_vnops.c in Sources */ = {isa = PBXBuildFile; fileRef = 52224FE0285EBA5000E70BD5 /* vfs_vnops.c */; };
-		52224FE4285EBD5300E70BD5 /* vfs_subr.c in Sources */ = {isa = PBXBuildFile; fileRef = 52224FE3285EBD5300E70BD5 /* vfs_subr.c */; };
-		52224FE6285EBEAC00E70BD5 /* ufs_debug.c in Sources */ = {isa = PBXBuildFile; fileRef = 52224FE5285EBEAC00E70BD5 /* ufs_debug.c */; };
-		52224FE7285EC06D00E70BD5 /* ufsX.c in Sources */ = {isa = PBXBuildFile; fileRef = 522D0766285E106D00F96211 /* ufsX.c */; };
-		52224FEC285F3F6900E70BD5 /* ufs_vfsops.c in Sources */ = {isa = PBXBuildFile; fileRef = 522D077D285E107E00F96211 /* ufs_vfsops.c */; };
-		52224FED285F3F8700E70BD5 /* ufs_bmap.c in Sources */ = {isa = PBXBuildFile; fileRef = 522D0775285E107E00F96211 /* ufs_bmap.c */; };
-		52224FF0285F557100E70BD5 /* vfs_hash.c in Sources */ = {isa = PBXBuildFile; fileRef = 52224FEF285F557100E70BD5 /* vfs_hash.c */; };
-		52224FF2285F714F00E70BD5 /* ufs_extattr.c in Sources */ = {isa = PBXBuildFile; fileRef = 522D0779285E107E00F96211 /* ufs_extattr.c */; };
-		52224FF4285FA13400E70BD5 /* ufs_inode.c in Sources */ = {isa = PBXBuildFile; fileRef = 522D077A285E107E00F96211 /* ufs_inode.c */; };
-		52224FF5285FADBE00E70BD5 /* ufs_dirhash.c in Sources */ = {isa = PBXBuildFile; fileRef = 522D077E285E107E00F96211 /* ufs_dirhash.c */; };
-		52224FF6285FADC800E70BD5 /* ufs_vnops.c in Sources */ = {isa = PBXBuildFile; fileRef = 522D0782285E107E00F96211 /* ufs_vnops.c */; };
-		52224FFB2860722300E70BD5 /* lock.h in Headers */ = {isa = PBXBuildFile; fileRef = 52224FFA2860722300E70BD5 /* lock.h */; };
-		522250012860921000E70BD5 /* vnode_if.c in Sources */ = {isa = PBXBuildFile; fileRef = 52224FFD286077C500E70BD5 /* vnode_if.c */; };
+		520346F22865C179005DFE60 /* NOTES in Resources */ = {isa = PBXBuildFile; fileRef = 520346F12865C179005DFE60 /* NOTES */; };
+		5212039E2891F99F006B8629 /* ufs_bmap.c in Sources */ = {isa = PBXBuildFile; fileRef = 522D0775285E107E00F96211 /* ufs_bmap.c */; };
+		5212039F2891FD90006B8629 /* IOTaskQueue.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 52F2876B286A0230006E7A75 /* IOTaskQueue.cpp */; };
+		521203A1289208EF006B8629 /* ufs_dirhash.c in Sources */ = {isa = PBXBuildFile; fileRef = 522D077E285E107E00F96211 /* ufs_dirhash.c */; };
+		521203A228920906006B8629 /* ufs_lookup.c in Sources */ = {isa = PBXBuildFile; fileRef = 522D0771285E107E00F96211 /* ufs_lookup.c */; };
+		521203A628921388006B8629 /* block.c in Sources */ = {isa = PBXBuildFile; fileRef = 52C6F6202890D416006B8629 /* block.c */; };
+		521203A82892E5DC006B8629 /* ffs_alloc.c in Sources */ = {isa = PBXBuildFile; fileRef = 522D078F285E107E00F96211 /* ffs_alloc.c */; };
+		521203A92892EF13006B8629 /* ffs_snapshot.c in Sources */ = {isa = PBXBuildFile; fileRef = 522D0793285E107E00F96211 /* ffs_snapshot.c */; };
+		521203AA28933DAA006B8629 /* ffs_balloc.c in Sources */ = {isa = PBXBuildFile; fileRef = 522D0788285E107E00F96211 /* ffs_balloc.c */; };
+		52230489289B7EBE006B8629 /* ufs_ihash.c in Sources */ = {isa = PBXBuildFile; fileRef = 52230488289B7EBE006B8629 /* ufs_ihash.c */; };
 		522D0794285E107E00F96211 /* quota.h in Headers */ = {isa = PBXBuildFile; fileRef = 522D076F285E107E00F96211 /* quota.h */; };
 		522D0795285E107E00F96211 /* inode.h in Headers */ = {isa = PBXBuildFile; fileRef = 522D0770285E107E00F96211 /* inode.h */; };
 		522D0797285E107E00F96211 /* acl.h in Headers */ = {isa = PBXBuildFile; fileRef = 522D0772285E107E00F96211 /* acl.h */; };
 		522D0799285E107E00F96211 /* dinode.h in Headers */ = {isa = PBXBuildFile; fileRef = 522D0774285E107E00F96211 /* dinode.h */; };
 		522D079B285E107E00F96211 /* dirhash.h in Headers */ = {isa = PBXBuildFile; fileRef = 522D0776285E107E00F96211 /* dirhash.h */; };
 		522D079C285E107E00F96211 /* extattr.h in Headers */ = {isa = PBXBuildFile; fileRef = 522D0777285E107E00F96211 /* extattr.h */; };
-		522D079D285E107E00F96211 /* gjournal.h in Headers */ = {isa = PBXBuildFile; fileRef = 522D0778285E107E00F96211 /* gjournal.h */; };
 		522D07A1285E107E00F96211 /* README.acls in Resources */ = {isa = PBXBuildFile; fileRef = 522D077C285E107E00F96211 /* README.acls */; };
 		522D07A5285E107E00F96211 /* ufsmount.h in Headers */ = {isa = PBXBuildFile; fileRef = 522D0780285E107E00F96211 /* ufsmount.h */; };
 		522D07A6285E107E00F96211 /* README.extattr in Resources */ = {isa = PBXBuildFile; fileRef = 522D0781285E107E00F96211 /* README.extattr */; };
@@ -37,29 +31,138 @@
 		522D07AF285E107E00F96211 /* softdep.h in Headers */ = {isa = PBXBuildFile; fileRef = 522D078B285E107E00F96211 /* softdep.h */; };
 		522D07B4285E107E00F96211 /* ffs_extern.h in Headers */ = {isa = PBXBuildFile; fileRef = 522D0790285E107E00F96211 /* ffs_extern.h */; };
 		522D07B6285E107E00F96211 /* fs.h in Headers */ = {isa = PBXBuildFile; fileRef = 522D0792285E107E00F96211 /* fs.h */; };
+		5230E8AD289366A4006B8629 /* scanc.c in Sources */ = {isa = PBXBuildFile; fileRef = 5230E8AB289366A4006B8629 /* scanc.c */; };
+		5230E8AE28936EE3006B8629 /* ufs_vfsops.c in Sources */ = {isa = PBXBuildFile; fileRef = 522D077D285E107E00F96211 /* ufs_vfsops.c */; };
+		5230E8B328942512006B8629 /* ufsX.kext in CopyFiles */ = {isa = PBXBuildFile; fileRef = 522D0763285E106D00F96211 /* ufsX.kext */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		5230E8B428942512006B8629 /* mount_ufs in CopyFiles */ = {isa = PBXBuildFile; fileRef = 52A6DD7D28663F6200C6A474 /* mount_ufs */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		5230E8B528942512006B8629 /* newfs_ufs in CopyFiles */ = {isa = PBXBuildFile; fileRef = 52C6F5FF2890D1E8006B8629 /* newfs_ufs */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		5285366E2861AC1700EF6651 /* malloc.h in Headers */ = {isa = PBXBuildFile; fileRef = 5285366D2861AC1700EF6651 /* malloc.h */; };
-		5285367A2861E31000EF6651 /* ffs_tables.c in Sources */ = {isa = PBXBuildFile; fileRef = 522D0789285E107E00F96211 /* ffs_tables.c */; };
-		5285367B2861E31800EF6651 /* ffs_suspend.c in Sources */ = {isa = PBXBuildFile; fileRef = 522D078E285E107E00F96211 /* ffs_suspend.c */; };
-		5285367D2861F19700EF6651 /* fsbd_mountfs.c in Sources */ = {isa = PBXBuildFile; fileRef = 5285367C2861F19700EF6651 /* fsbd_mountfs.c */; };
-		528536812861FC5D00EF6651 /* fbsd_devfsprivate.c in Sources */ = {isa = PBXBuildFile; fileRef = 528536802861FC5D00EF6651 /* fbsd_devfsprivate.c */; };
-		528536832862399500EF6651 /* ffs_subr.c in Sources */ = {isa = PBXBuildFile; fileRef = 522D078D285E107E00F96211 /* ffs_subr.c */; };
-		52853687286239BF00EF6651 /* gsb_crc32.c in Sources */ = {isa = PBXBuildFile; fileRef = 52853685286239BF00EF6651 /* gsb_crc32.c */; };
-		5285368C2862466500EF6651 /* ufsX_vnops.c in Sources */ = {isa = PBXBuildFile; fileRef = 5285368B2862466500EF6651 /* ufsX_vnops.c */; };
-		5285368D2862552D00EF6651 /* ffs_vnops.c in Sources */ = {isa = PBXBuildFile; fileRef = 522D0791285E107E00F96211 /* ffs_vnops.c */; };
-		52EB21062861A96200BC8515 /* fbsd_cpu.c in Sources */ = {isa = PBXBuildFile; fileRef = 52EB21042861A72E00BC8515 /* fbsd_cpu.c */; };
+		528E39912890F1AC006B8629 /* acl.h in Headers */ = {isa = PBXBuildFile; fileRef = 528E39612890F1AC006B8629 /* acl.h */; };
+		528E39BD2890F793006B8629 /* ufs_subr.c in Sources */ = {isa = PBXBuildFile; fileRef = 528E39B92890F4FF006B8629 /* ufs_subr.c */; };
+		528E39C52890FA06006B8629 /* ffs_subr.c in Sources */ = {isa = PBXBuildFile; fileRef = 522D078D285E107E00F96211 /* ffs_subr.c */; };
+		528E39C62890FA31006B8629 /* crc32c.c in Sources */ = {isa = PBXBuildFile; fileRef = 528E39802890F1AC006B8629 /* crc32c.c */; };
+		528E39C72890FA34006B8629 /* qsort.c in Sources */ = {isa = PBXBuildFile; fileRef = 528E39822890F1AC006B8629 /* qsort.c */; };
+		528E39C82890FA37006B8629 /* memcchr.c in Sources */ = {isa = PBXBuildFile; fileRef = 528E39832890F1AC006B8629 /* memcchr.c */; };
+		528E39C92890FA3A006B8629 /* heapsort.c in Sources */ = {isa = PBXBuildFile; fileRef = 528E39842890F1AC006B8629 /* heapsort.c */; };
+		528E39CB2890FC6F006B8629 /* ffs_inode_lock.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 528E396D2890F1AC006B8629 /* ffs_inode_lock.cpp */; };
+		528E39CD28915B6E006B8629 /* ffs_inode.c in Sources */ = {isa = PBXBuildFile; fileRef = 522D078C285E107E00F96211 /* ffs_inode.c */; };
+		528E39D1289166C5006B8629 /* malloc.c in Sources */ = {isa = PBXBuildFile; fileRef = 528E39D0289166C5006B8629 /* malloc.c */; };
+		528E39D228916790006B8629 /* debug.c in Sources */ = {isa = PBXBuildFile; fileRef = 52224FE5285EBEAC00E70BD5 /* debug.c */; };
+		528E39D3289169C9006B8629 /* ffs_tables.c in Sources */ = {isa = PBXBuildFile; fileRef = 522D0789285E107E00F96211 /* ffs_tables.c */; };
+		528E39D4289169D5006B8629 /* ffs_vfsops.c in Sources */ = {isa = PBXBuildFile; fileRef = 522D078A285E107E00F96211 /* ffs_vfsops.c */; };
+		528E39D628916A20006B8629 /* time.c in Sources */ = {isa = PBXBuildFile; fileRef = 528E39D528916A20006B8629 /* time.c */; };
+		528E39D8289171D9006B8629 /* mount_subr.c in Sources */ = {isa = PBXBuildFile; fileRef = 52A6DD71286610A200C6A474 /* mount_subr.c */; };
+		528E39DA289171D9006B8629 /* vfs_vnops.c in Sources */ = {isa = PBXBuildFile; fileRef = 52224FE0285EBA5000E70BD5 /* vfs_vnops.c */; };
+		528E39DC2891A1DD006B8629 /* ufs_vnops.c in Sources */ = {isa = PBXBuildFile; fileRef = 522D0782285E107E00F96211 /* ufs_vnops.c */; };
+		528E39DE2891B526006B8629 /* vnode_if.c in Sources */ = {isa = PBXBuildFile; fileRef = 52224FFD286077C500E70BD5 /* vnode_if.c */; };
+		528E39DF2891BA02006B8629 /* buf.c in Sources */ = {isa = PBXBuildFile; fileRef = 528E39C22890F9EB006B8629 /* buf.c */; };
+		528E39E12891BE1F006B8629 /* ffs_ialloc_critical.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 528E395D2890F1AC006B8629 /* ffs_ialloc_critical.cpp */; };
+		528E39E32891C4DF006B8629 /* ffs_softdep_stubs.c in Sources */ = {isa = PBXBuildFile; fileRef = 528E39E22891C4DF006B8629 /* ffs_softdep_stubs.c */; };
+		528E39E42891C535006B8629 /* ffs_softdep.c in Sources */ = {isa = PBXBuildFile; fileRef = 522D0786285E107E00F96211 /* ffs_softdep.c */; };
+		528E39E72891C78A006B8629 /* ffs_suspend.c in Sources */ = {isa = PBXBuildFile; fileRef = 528E39E62891C78A006B8629 /* ffs_suspend.c */; };
+		528E39FF2891CFE0006B8629 /* ufs_inode.c in Sources */ = {isa = PBXBuildFile; fileRef = 522D077A285E107E00F96211 /* ufs_inode.c */; };
+		528E3A012891EA56006B8629 /* ffs_vnops.c in Sources */ = {isa = PBXBuildFile; fileRef = 522D0791285E107E00F96211 /* ffs_vnops.c */; };
+		528E3A022891EC58006B8629 /* ufsX.c in Sources */ = {isa = PBXBuildFile; fileRef = 522D0766285E106D00F96211 /* ufsX.c */; };
+		52A6DD7728663AE100C6A474 /* ufsX_vfsops.h in Headers */ = {isa = PBXBuildFile; fileRef = 52A6DD7528663AE100C6A474 /* ufsX_vfsops.h */; };
+		52A6DD8028663F6200C6A474 /* mount_ufs.c in Sources */ = {isa = PBXBuildFile; fileRef = 52A6DD7F28663F6200C6A474 /* mount_ufs.c */; };
+		52A6DD8628663FDC00C6A474 /* getmntopts.c in Sources */ = {isa = PBXBuildFile; fileRef = 52A6DD8528663FDC00C6A474 /* getmntopts.c */; };
+		52C6F60F2890D1F8006B8629 /* mkfs.c in Sources */ = {isa = PBXBuildFile; fileRef = 52C6F6062890D1F7006B8629 /* mkfs.c */; };
+		52C6F6282890D416006B8629 /* sblock.c in Sources */ = {isa = PBXBuildFile; fileRef = 52C6F61E2890D416006B8629 /* sblock.c */; };
+		52C6F6292890D416006B8629 /* type.c in Sources */ = {isa = PBXBuildFile; fileRef = 52C6F61F2890D416006B8629 /* type.c */; };
+		52C6F62B2890D416006B8629 /* libufs.h in Headers */ = {isa = PBXBuildFile; fileRef = 52C6F6222890D416006B8629 /* libufs.h */; };
+		52C6F62C2890D416006B8629 /* inode.c in Sources */ = {isa = PBXBuildFile; fileRef = 52C6F6232890D416006B8629 /* inode.c */; };
+		52C6F62D2890D416006B8629 /* cgroup.c in Sources */ = {isa = PBXBuildFile; fileRef = 52C6F6252890D416006B8629 /* cgroup.c */; };
+		52C6F6362890DAC3006B8629 /* liblibufs.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 52C6F6172890D400006B8629 /* liblibufs.a */; };
+		52C6F63F2890DFD2006B8629 /* newfs.c in Sources */ = {isa = PBXBuildFile; fileRef = 52C6F60E2890D1F8006B8629 /* newfs.c */; };
+		52C6F6402890E121006B8629 /* disklabel.c in Sources */ = {isa = PBXBuildFile; fileRef = 52C6F63A2890DD77006B8629 /* disklabel.c */; };
+		52C89F992896FAB7006B8629 /* ffs_subr.c in Sources */ = {isa = PBXBuildFile; fileRef = 522D078D285E107E00F96211 /* ffs_subr.c */; };
+		52C89F9A2896FADA006B8629 /* ffs_tables.c in Sources */ = {isa = PBXBuildFile; fileRef = 522D0789285E107E00F96211 /* ffs_tables.c */; };
+		52C89F9B2896FAE5006B8629 /* crc32c.c in Sources */ = {isa = PBXBuildFile; fileRef = 528E39802890F1AC006B8629 /* crc32c.c */; };
+		52F603C1289755B6006B8629 /* main.c in Sources */ = {isa = PBXBuildFile; fileRef = 52F603C0289755B6006B8629 /* main.c */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		52C6F6332890DABB006B8629 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 522D075A285E106D00F96211 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 52C6F6162890D400006B8629;
+			remoteInfo = libufs;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		5230E8AF289420D1006B8629 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = $HOME/mount;
+			dstSubfolderSpec = 0;
+			files = (
+				5230E8B328942512006B8629 /* ufsX.kext in CopyFiles */,
+				5230E8B428942512006B8629 /* mount_ufs in CopyFiles */,
+				5230E8B528942512006B8629 /* newfs_ufs in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		5230E8B028942101006B8629 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = $HOME/mount;
+			dstSubfolderSpec = 0;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		5230E8B128942110006B8629 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = $HOME/mount;
+			dstSubfolderSpec = 0;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		52A6DD7B28663F6200C6A474 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+		};
+		52C6F5FD2890D1E8006B8629 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+		};
+		52F603BC289755B6006B8629 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
+		520346DD2864A834005DFE60 /* bufobj.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = bufobj.h; sourceTree = "<group>"; };
+		520346DE2864A885005DFE60 /* _pctrie.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = _pctrie.h; sourceTree = "<group>"; };
+		520346E52864D658005DFE60 /* bitset.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = bitset.h; sourceTree = "<group>"; };
+		520346EF2865A466005DFE60 /* time.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = time.h; sourceTree = "<group>"; };
+		520346F12865C179005DFE60 /* NOTES */ = {isa = PBXFileReference; lastKnownFileType = text; path = NOTES; sourceTree = "<group>"; };
 		52224FDD285EAB5300E70BD5 /* compat.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = compat.h; sourceTree = "<group>"; };
-		52224FDE285EACA900E70BD5 /* vn_printf.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = vn_printf.c; path = ufs/vn_printf.c; sourceTree = "<group>"; };
 		52224FE0285EBA5000E70BD5 /* vfs_vnops.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = vfs_vnops.c; sourceTree = "<group>"; };
-		52224FE3285EBD5300E70BD5 /* vfs_subr.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = vfs_subr.c; sourceTree = "<group>"; };
-		52224FE5285EBEAC00E70BD5 /* ufs_debug.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = ufs_debug.c; sourceTree = "<group>"; };
-		52224FEF285F557100E70BD5 /* vfs_hash.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = vfs_hash.c; sourceTree = "<group>"; };
+		52224FE5285EBEAC00E70BD5 /* debug.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = debug.c; sourceTree = "<group>"; };
 		52224FF7285FAE3F00E70BD5 /* ufsX_vnops.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ufsX_vnops.h; sourceTree = "<group>"; };
-		52224FFA2860722300E70BD5 /* lock.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lock.h; sourceTree = "<group>"; };
 		52224FFD286077C500E70BD5 /* vnode_if.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = vnode_if.c; sourceTree = "<group>"; };
-		522250002860811300E70BD5 /* vnode.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = vnode.h; sourceTree = "<group>"; };
+		52230488289B7EBE006B8629 /* ufs_ihash.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = ufs_ihash.c; sourceTree = "<group>"; };
 		522D0763285E106D00F96211 /* ufsX.kext */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ufsX.kext; sourceTree = BUILT_PRODUCTS_DIR; };
 		522D0766285E106D00F96211 /* ufsX.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = ufsX.c; sourceTree = "<group>"; };
 		522D0768285E106D00F96211 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -72,14 +175,12 @@
 		522D0775285E107E00F96211 /* ufs_bmap.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ufs_bmap.c; sourceTree = "<group>"; };
 		522D0776285E107E00F96211 /* dirhash.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = dirhash.h; sourceTree = "<group>"; };
 		522D0777285E107E00F96211 /* extattr.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = extattr.h; sourceTree = "<group>"; };
-		522D0778285E107E00F96211 /* gjournal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = gjournal.h; sourceTree = "<group>"; };
 		522D0779285E107E00F96211 /* ufs_extattr.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ufs_extattr.c; sourceTree = "<group>"; };
 		522D077A285E107E00F96211 /* ufs_inode.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ufs_inode.c; sourceTree = "<group>"; };
 		522D077B285E107E00F96211 /* ufs_quota.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ufs_quota.c; sourceTree = "<group>"; };
 		522D077C285E107E00F96211 /* README.acls */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = README.acls; sourceTree = "<group>"; };
 		522D077D285E107E00F96211 /* ufs_vfsops.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ufs_vfsops.c; sourceTree = "<group>"; };
 		522D077E285E107E00F96211 /* ufs_dirhash.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ufs_dirhash.c; sourceTree = "<group>"; };
-		522D077F285E107E00F96211 /* ufs_gjournal.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ufs_gjournal.c; sourceTree = "<group>"; };
 		522D0780285E107E00F96211 /* ufsmount.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ufsmount.h; sourceTree = "<group>"; };
 		522D0781285E107E00F96211 /* README.extattr */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = README.extattr; sourceTree = "<group>"; };
 		522D0782285E107E00F96211 /* ufs_vnops.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ufs_vnops.c; sourceTree = "<group>"; };
@@ -93,12 +194,13 @@
 		522D078B285E107E00F96211 /* softdep.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = softdep.h; sourceTree = "<group>"; };
 		522D078C285E107E00F96211 /* ffs_inode.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ffs_inode.c; sourceTree = "<group>"; };
 		522D078D285E107E00F96211 /* ffs_subr.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ffs_subr.c; sourceTree = "<group>"; };
-		522D078E285E107E00F96211 /* ffs_suspend.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ffs_suspend.c; sourceTree = "<group>"; };
 		522D078F285E107E00F96211 /* ffs_alloc.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ffs_alloc.c; sourceTree = "<group>"; };
 		522D0790285E107E00F96211 /* ffs_extern.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ffs_extern.h; sourceTree = "<group>"; };
 		522D0791285E107E00F96211 /* ffs_vnops.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ffs_vnops.c; sourceTree = "<group>"; };
 		522D0792285E107E00F96211 /* fs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = fs.h; sourceTree = "<group>"; };
 		522D0793285E107E00F96211 /* ffs_snapshot.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ffs_snapshot.c; sourceTree = "<group>"; };
+		5230E8AB289366A4006B8629 /* scanc.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = scanc.c; sourceTree = "<group>"; };
+		5230E8B6289434BC006B8629 /* lock.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = lock.h; sourceTree = "<group>"; };
 		5285366D2861AC1700EF6651 /* malloc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = malloc.h; sourceTree = "<group>"; };
 		5285366F2861AC2E00EF6651 /* mount.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = mount.h; sourceTree = "<group>"; };
 		528536702861AC7500EF6651 /* param.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = param.h; sourceTree = "<group>"; };
@@ -109,19 +211,89 @@
 		528536752861ACD000EF6651 /* stat.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = stat.h; sourceTree = "<group>"; };
 		528536762861AF2C00EF6651 /* atomic.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = atomic.h; sourceTree = "<group>"; };
 		528536782861B0DF00EF6651 /* systm.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = systm.h; sourceTree = "<group>"; };
-		528536792861BBBB00EF6651 /* util.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = util.h; sourceTree = "<group>"; };
-		5285367C2861F19700EF6651 /* fsbd_mountfs.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = fsbd_mountfs.c; sourceTree = "<group>"; };
-		528536802861FC5D00EF6651 /* fbsd_devfsprivate.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = fbsd_devfsprivate.c; sourceTree = "<group>"; };
 		528536822861FC9900EF6651 /* conf.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = conf.h; sourceTree = "<group>"; };
-		52853685286239BF00EF6651 /* gsb_crc32.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = gsb_crc32.c; sourceTree = "<group>"; };
 		5285368828623A0200EF6651 /* gsb_crc32.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = gsb_crc32.h; sourceTree = "<group>"; };
-		5285368B2862466500EF6651 /* ufsX_vnops.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = ufsX_vnops.c; sourceTree = "<group>"; };
-		52EB21042861A72E00BC8515 /* fbsd_cpu.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = fbsd_cpu.c; sourceTree = "<group>"; };
-		52EB21072861AA0B00BC8515 /* seqc.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = seqc.h; sourceTree = "<group>"; };
+		528E395D2890F1AC006B8629 /* ffs_ialloc_critical.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ffs_ialloc_critical.cpp; sourceTree = "<group>"; };
+		528E39612890F1AC006B8629 /* acl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = acl.h; sourceTree = "<group>"; };
+		528E396D2890F1AC006B8629 /* ffs_inode_lock.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ffs_inode_lock.cpp; sourceTree = "<group>"; };
+		528E39802890F1AC006B8629 /* crc32c.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = crc32c.c; sourceTree = "<group>"; };
+		528E39822890F1AC006B8629 /* qsort.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = qsort.c; sourceTree = "<group>"; };
+		528E39832890F1AC006B8629 /* memcchr.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = memcchr.c; sourceTree = "<group>"; };
+		528E39842890F1AC006B8629 /* heapsort.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = heapsort.c; sourceTree = "<group>"; };
+		528E39B92890F4FF006B8629 /* ufs_subr.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = ufs_subr.c; sourceTree = "<group>"; };
+		528E39C22890F9EB006B8629 /* buf.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = buf.c; sourceTree = "<group>"; };
+		528E39D0289166C5006B8629 /* malloc.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = malloc.c; sourceTree = "<group>"; };
+		528E39D528916A20006B8629 /* time.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = time.c; sourceTree = "<group>"; };
+		528E39E22891C4DF006B8629 /* ffs_softdep_stubs.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = ffs_softdep_stubs.c; sourceTree = "<group>"; };
+		528E39E62891C78A006B8629 /* ffs_suspend.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = ffs_suspend.c; sourceTree = "<group>"; };
+		528E3A002891D04E006B8629 /* inode_lock.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = inode_lock.h; sourceTree = "<group>"; };
+		52A6DD71286610A200C6A474 /* mount_subr.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = mount_subr.c; sourceTree = "<group>"; };
+		52A6DD7528663AE100C6A474 /* ufsX_vfsops.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ufsX_vfsops.h; sourceTree = "<group>"; };
+		52A6DD7D28663F6200C6A474 /* mount_ufs */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = mount_ufs; sourceTree = BUILT_PRODUCTS_DIR; };
+		52A6DD7F28663F6200C6A474 /* mount_ufs.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = mount_ufs.c; sourceTree = "<group>"; };
+		52A6DD8428663FDC00C6A474 /* mntopts.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = mntopts.h; sourceTree = "<group>"; };
+		52A6DD8528663FDC00C6A474 /* getmntopts.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = getmntopts.c; sourceTree = "<group>"; };
+		52C00D6528897087007B6EB1 /* taskqueue.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = taskqueue.h; sourceTree = "<group>"; };
+		52C6F5FF2890D1E8006B8629 /* newfs_ufs */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = newfs_ufs; sourceTree = BUILT_PRODUCTS_DIR; };
+		52C6F6062890D1F7006B8629 /* mkfs.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = mkfs.c; sourceTree = "<group>"; };
+		52C6F6092890D1F7006B8629 /* newfs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = newfs.h; sourceTree = "<group>"; };
+		52C6F60B2890D1F8006B8629 /* newfs.8 */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = newfs.8; sourceTree = "<group>"; };
+		52C6F60C2890D1F8006B8629 /* ref.test */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = ref.test; sourceTree = "<group>"; };
+		52C6F60E2890D1F8006B8629 /* newfs.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = newfs.c; sourceTree = "<group>"; };
+		52C6F6122890D289006B8629 /* ufs.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ufs.h; sourceTree = "<group>"; };
+		52C6F6172890D400006B8629 /* liblibufs.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = liblibufs.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		52C6F61C2890D415006B8629 /* bread.3 */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = bread.3; sourceTree = "<group>"; };
+		52C6F61D2890D415006B8629 /* getinode.3 */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = getinode.3; sourceTree = "<group>"; };
+		52C6F61E2890D416006B8629 /* sblock.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = sblock.c; sourceTree = "<group>"; };
+		52C6F61F2890D416006B8629 /* type.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = type.c; sourceTree = "<group>"; };
+		52C6F6202890D416006B8629 /* block.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = block.c; sourceTree = "<group>"; };
+		52C6F6212890D416006B8629 /* libufs.3 */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = libufs.3; sourceTree = "<group>"; };
+		52C6F6222890D416006B8629 /* libufs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = libufs.h; sourceTree = "<group>"; };
+		52C6F6232890D416006B8629 /* inode.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = inode.c; sourceTree = "<group>"; };
+		52C6F6242890D416006B8629 /* sbread.3 */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = sbread.3; sourceTree = "<group>"; };
+		52C6F6252890D416006B8629 /* cgroup.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = cgroup.c; sourceTree = "<group>"; };
+		52C6F6262890D416006B8629 /* ufs_disk_close.3 */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = ufs_disk_close.3; sourceTree = "<group>"; };
+		52C6F6272890D416006B8629 /* cgread.3 */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = cgread.3; sourceTree = "<group>"; };
+		52C6F62F2890D46D006B8629 /* disklabel.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = disklabel.h; sourceTree = "<group>"; };
+		52C6F6302890D522006B8629 /* bsd.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = bsd.h; sourceTree = "<group>"; };
+		52C6F6322890D717006B8629 /* compat.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = compat.h; sourceTree = "<group>"; };
+		52C6F63A2890DD77006B8629 /* disklabel.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = disklabel.c; sourceTree = "<group>"; };
+		52F2876B286A0230006E7A75 /* IOTaskQueue.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = IOTaskQueue.cpp; sourceTree = "<group>"; };
+		52F603BE289755B6006B8629 /* debugfs */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = debugfs; sourceTree = BUILT_PRODUCTS_DIR; };
+		52F603C0289755B6006B8629 /* main.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = main.c; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		522D0760285E106D00F96211 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		52A6DD7A28663F6200C6A474 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		52C6F5FC2890D1E8006B8629 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				52C6F6362890DAC3006B8629 /* liblibufs.a in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		52C6F6152890D400006B8629 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		52F603BB289755B6006B8629 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -134,7 +306,9 @@
 		52224FD8285E121000E70BD5 /* ufs */ = {
 			isa = PBXGroup;
 			children = (
+				52A6DD7528663AE100C6A474 /* ufsX_vfsops.h */,
 				52224FF7285FAE3F00E70BD5 /* ufsX_vnops.h */,
+				522D0766285E106D00F96211 /* ufsX.c */,
 				522D0785285E107E00F96211 /* ffs */,
 				522D076E285E107E00F96211 /* ufs */,
 			);
@@ -144,8 +318,13 @@
 		522D0759285E106D00F96211 = {
 			isa = PBXGroup;
 			children = (
-				522D0765285E106D00F96211 /* ufsX */,
+				528E39572890F1AC006B8629 /* ufsX */,
+				52A6DD7E28663F6200C6A474 /* mount_ufs */,
+				52C6F6002890D1E8006B8629 /* newfs_ufs */,
+				52C6F61B2890D406006B8629 /* libufs */,
+				52F603BF289755B6006B8629 /* debugfs */,
 				522D0764285E106D00F96211 /* Products */,
+				52C6F6352890DAC3006B8629 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -153,58 +332,39 @@
 			isa = PBXGroup;
 			children = (
 				522D0763285E106D00F96211 /* ufsX.kext */,
+				52A6DD7D28663F6200C6A474 /* mount_ufs */,
+				52C6F5FF2890D1E8006B8629 /* newfs_ufs */,
+				52C6F6172890D400006B8629 /* liblibufs.a */,
+				52F603BE289755B6006B8629 /* debugfs */,
 			);
 			name = Products;
-			sourceTree = "<group>";
-		};
-		522D0765285E106D00F96211 /* ufsX */ = {
-			isa = PBXGroup;
-			children = (
-				5285367E2861FAA000EF6651 /* external */,
-				528536772861B05700EF6651 /* apple-internal */,
-				52EB21082861AADA00BC8515 /* freebsd */,
-				52224FD8285E121000E70BD5 /* ufs */,
-				522D0766285E106D00F96211 /* ufsX.c */,
-				5285368B2862466500EF6651 /* ufsX_vnops.c */,
-				52853685286239BF00EF6651 /* gsb_crc32.c */,
-				528536802861FC5D00EF6651 /* fbsd_devfsprivate.c */,
-				5285367C2861F19700EF6651 /* fsbd_mountfs.c */,
-				52EB21042861A72E00BC8515 /* fbsd_cpu.c */,
-				52224FE5285EBEAC00E70BD5 /* ufs_debug.c */,
-				52224FEF285F557100E70BD5 /* vfs_hash.c */,
-				52224FE0285EBA5000E70BD5 /* vfs_vnops.c */,
-				52224FE3285EBD5300E70BD5 /* vfs_subr.c */,
-				52224FDE285EACA900E70BD5 /* vn_printf.c */,
-				52224FFD286077C500E70BD5 /* vnode_if.c */,
-				522D0768285E106D00F96211 /* Info.plist */,
-			);
-			path = ufsX;
 			sourceTree = "<group>";
 		};
 		522D076E285E107E00F96211 /* ufs */ = {
 			isa = PBXGroup;
 			children = (
-				522D077C285E107E00F96211 /* README.acls */,
-				522D0773285E107E00F96211 /* ufs_acl.c */,
-				522D0775285E107E00F96211 /* ufs_bmap.c */,
-				522D077E285E107E00F96211 /* ufs_dirhash.c */,
-				522D0779285E107E00F96211 /* ufs_extattr.c */,
-				522D077F285E107E00F96211 /* ufs_gjournal.c */,
-				522D077A285E107E00F96211 /* ufs_inode.c */,
-				522D0771285E107E00F96211 /* ufs_lookup.c */,
-				522D077B285E107E00F96211 /* ufs_quota.c */,
-				522D077D285E107E00F96211 /* ufs_vfsops.c */,
-				522D0782285E107E00F96211 /* ufs_vnops.c */,
-				522D0781285E107E00F96211 /* README.extattr */,
 				522D0772285E107E00F96211 /* acl.h */,
 				522D0774285E107E00F96211 /* dinode.h */,
 				522D0783285E107E00F96211 /* dir.h */,
 				522D0776285E107E00F96211 /* dirhash.h */,
 				522D0777285E107E00F96211 /* extattr.h */,
-				522D0778285E107E00F96211 /* gjournal.h */,
 				522D0770285E107E00F96211 /* inode.h */,
+				528E3A002891D04E006B8629 /* inode_lock.h */,
 				522D076F285E107E00F96211 /* quota.h */,
+				522D077C285E107E00F96211 /* README.acls */,
+				522D0781285E107E00F96211 /* README.extattr */,
+				522D0773285E107E00F96211 /* ufs_acl.c */,
+				522D0775285E107E00F96211 /* ufs_bmap.c */,
+				522D077E285E107E00F96211 /* ufs_dirhash.c */,
+				522D0779285E107E00F96211 /* ufs_extattr.c */,
 				522D0784285E107E00F96211 /* ufs_extern.h */,
+				52230488289B7EBE006B8629 /* ufs_ihash.c */,
+				522D077A285E107E00F96211 /* ufs_inode.c */,
+				522D0771285E107E00F96211 /* ufs_lookup.c */,
+				522D077B285E107E00F96211 /* ufs_quota.c */,
+				528E39B92890F4FF006B8629 /* ufs_subr.c */,
+				522D077D285E107E00F96211 /* ufs_vfsops.c */,
+				522D0782285E107E00F96211 /* ufs_vnops.c */,
 				522D0780285E107E00F96211 /* ufsmount.h */,
 			);
 			path = ufs;
@@ -215,66 +375,167 @@
 			children = (
 				522D078F285E107E00F96211 /* ffs_alloc.c */,
 				522D0788285E107E00F96211 /* ffs_balloc.c */,
+				522D0790285E107E00F96211 /* ffs_extern.h */,
+				528E395D2890F1AC006B8629 /* ffs_ialloc_critical.cpp */,
+				528E396D2890F1AC006B8629 /* ffs_inode_lock.cpp */,
 				522D078C285E107E00F96211 /* ffs_inode.c */,
 				522D0787285E107E00F96211 /* ffs_rawread.c */,
 				522D0793285E107E00F96211 /* ffs_snapshot.c */,
+				520346F12865C179005DFE60 /* NOTES */,
 				522D0786285E107E00F96211 /* ffs_softdep.c */,
+				528E39E22891C4DF006B8629 /* ffs_softdep_stubs.c */,
 				522D078D285E107E00F96211 /* ffs_subr.c */,
-				522D078E285E107E00F96211 /* ffs_suspend.c */,
+				528E39E62891C78A006B8629 /* ffs_suspend.c */,
 				522D0789285E107E00F96211 /* ffs_tables.c */,
 				522D078A285E107E00F96211 /* ffs_vfsops.c */,
 				522D0791285E107E00F96211 /* ffs_vnops.c */,
-				522D0790285E107E00F96211 /* ffs_extern.h */,
 				522D0792285E107E00F96211 /* fs.h */,
 				522D078B285E107E00F96211 /* softdep.h */,
 			);
 			path = ffs;
 			sourceTree = "<group>";
 		};
-		528536772861B05700EF6651 /* apple-internal */ = {
+		528E39572890F1AC006B8629 /* ufsX */ = {
 			isa = PBXGroup;
 			children = (
-				522250002860811300E70BD5 /* vnode.h */,
+				52EB21082861AADA00BC8515 /* freebsd */,
+				528E39BE2890F799006B8629 /* darwin */,
+				52224FD8285E121000E70BD5 /* ufs */,
 			);
-			path = "apple-internal";
+			path = ufsX;
 			sourceTree = "<group>";
 		};
-		5285367E2861FAA000EF6651 /* external */ = {
+		528E39BE2890F799006B8629 /* darwin */ = {
+			isa = PBXGroup;
+			children = (
+				522D0768285E106D00F96211 /* Info.plist */,
+			);
+			path = darwin;
+			sourceTree = "<group>";
+		};
+		52A6DD7E28663F6200C6A474 /* mount_ufs */ = {
+			isa = PBXGroup;
+			children = (
+				52A6DD8428663FDC00C6A474 /* mntopts.h */,
+				52A6DD8528663FDC00C6A474 /* getmntopts.c */,
+				52A6DD7F28663F6200C6A474 /* mount_ufs.c */,
+			);
+			path = mount_ufs;
+			sourceTree = "<group>";
+		};
+		52C6F6002890D1E8006B8629 /* newfs_ufs */ = {
+			isa = PBXGroup;
+			children = (
+				52C6F6062890D1F7006B8629 /* mkfs.c */,
+				52C6F60B2890D1F8006B8629 /* newfs.8 */,
+				52C6F60E2890D1F8006B8629 /* newfs.c */,
+				52C6F6092890D1F7006B8629 /* newfs.h */,
+				52C6F60C2890D1F8006B8629 /* ref.test */,
+				52C6F6122890D289006B8629 /* ufs.h */,
+				52C6F63A2890DD77006B8629 /* disklabel.c */,
+			);
+			path = newfs_ufs;
+			sourceTree = "<group>";
+		};
+		52C6F61B2890D406006B8629 /* libufs */ = {
+			isa = PBXGroup;
+			children = (
+				52C6F62E2890D449006B8629 /* freebsd */,
+				52C6F6202890D416006B8629 /* block.c */,
+				52C6F61C2890D415006B8629 /* bread.3 */,
+				52C6F6272890D416006B8629 /* cgread.3 */,
+				52C6F6252890D416006B8629 /* cgroup.c */,
+				52C6F61D2890D415006B8629 /* getinode.3 */,
+				52C6F6232890D416006B8629 /* inode.c */,
+				52C6F6212890D416006B8629 /* libufs.3 */,
+				52C6F6222890D416006B8629 /* libufs.h */,
+				52C6F61E2890D416006B8629 /* sblock.c */,
+				52C6F6242890D416006B8629 /* sbread.3 */,
+				52C6F61F2890D416006B8629 /* type.c */,
+				52C6F6262890D416006B8629 /* ufs_disk_close.3 */,
+			);
+			path = libufs;
+			sourceTree = "<group>";
+		};
+		52C6F62E2890D449006B8629 /* freebsd */ = {
+			isa = PBXGroup;
+			children = (
+				52C6F6312890D52A006B8629 /* disk */,
+				52C6F62F2890D46D006B8629 /* disklabel.h */,
+				52C6F6322890D717006B8629 /* compat.h */,
+			);
+			path = freebsd;
+			sourceTree = "<group>";
+		};
+		52C6F6312890D52A006B8629 /* disk */ = {
+			isa = PBXGroup;
+			children = (
+				52C6F6302890D522006B8629 /* bsd.h */,
+			);
+			path = disk;
+			sourceTree = "<group>";
+		};
+		52C6F6352890DAC3006B8629 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
 			);
-			path = external;
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 		52EB21082861AADA00BC8515 /* freebsd */ = {
 			isa = PBXGroup;
 			children = (
-				52EB21092861AAE000BC8515 /* sys */,
+				52EB21092861AAE000BC8515 /* compat */,
 			);
 			path = freebsd;
 			sourceTree = "<group>";
 		};
-		52EB21092861AAE000BC8515 /* sys */ = {
+		52EB21092861AAE000BC8515 /* compat */ = {
 			isa = PBXGroup;
 			children = (
-				52224FDD285EAB5300E70BD5 /* compat.h */,
+				520346DE2864A885005DFE60 /* _pctrie.h */,
 				528536762861AF2C00EF6651 /* atomic.h */,
+				528E39612890F1AC006B8629 /* acl.h */,
+				520346E52864D658005DFE60 /* bitset.h */,
+				528E39C22890F9EB006B8629 /* buf.c */,
 				528536722861AC8900EF6651 /* buf.h */,
+				520346DD2864A834005DFE60 /* bufobj.h */,
+				52224FDD285EAB5300E70BD5 /* compat.h */,
 				528536822861FC9900EF6651 /* conf.h */,
+				528E39802890F1AC006B8629 /* crc32c.c */,
 				528536742861AC9C00EF6651 /* debug.h */,
-				5285368828623A0200EF6651 /* gsb_crc32.h */,
 				528536732861AC8E00EF6651 /* dirent.h */,
-				52224FFA2860722300E70BD5 /* lock.h */,
+				5285368828623A0200EF6651 /* gsb_crc32.h */,
+				528E39842890F1AC006B8629 /* heapsort.c */,
+				5230E8B6289434BC006B8629 /* lock.h */,
+				52F2876B286A0230006E7A75 /* IOTaskQueue.cpp */,
+				528E39D0289166C5006B8629 /* malloc.c */,
 				5285366D2861AC1700EF6651 /* malloc.h */,
+				528E39832890F1AC006B8629 /* memcchr.c */,
+				52A6DD71286610A200C6A474 /* mount_subr.c */,
 				5285366F2861AC2E00EF6651 /* mount.h */,
 				528536702861AC7500EF6651 /* param.h */,
-				52EB21072861AA0B00BC8515 /* seqc.h */,
+				528E39822890F1AC006B8629 /* qsort.c */,
 				528536752861ACD000EF6651 /* stat.h */,
+				52224FE5285EBEAC00E70BD5 /* debug.c */,
 				528536782861B0DF00EF6651 /* systm.h */,
+				52C00D6528897087007B6EB1 /* taskqueue.h */,
+				528E39D528916A20006B8629 /* time.c */,
+				520346EF2865A466005DFE60 /* time.h */,
+				52224FE0285EBA5000E70BD5 /* vfs_vnops.c */,
+				52224FFD286077C500E70BD5 /* vnode_if.c */,
 				528536712861AC7B00EF6651 /* vnode.h */,
-				528536792861BBBB00EF6651 /* util.h */,
+				5230E8AB289366A4006B8629 /* scanc.c */,
 			);
-			path = sys;
+			path = compat;
+			sourceTree = "<group>";
+		};
+		52F603BF289755B6006B8629 /* debugfs */ = {
+			isa = PBXGroup;
+			children = (
+				52F603C0289755B6006B8629 /* main.c */,
+			);
+			path = debugfs;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -290,15 +551,23 @@
 				5285366E2861AC1700EF6651 /* malloc.h in Headers */,
 				522D07B6285E107E00F96211 /* fs.h in Headers */,
 				522D07A5285E107E00F96211 /* ufsmount.h in Headers */,
-				52224FFB2860722300E70BD5 /* lock.h in Headers */,
 				522D079C285E107E00F96211 /* extattr.h in Headers */,
 				522D07A8285E107E00F96211 /* dir.h in Headers */,
+				528E39912890F1AC006B8629 /* acl.h in Headers */,
+				52A6DD7728663AE100C6A474 /* ufsX_vfsops.h in Headers */,
 				522D0799285E107E00F96211 /* dinode.h in Headers */,
 				522D07A9285E107E00F96211 /* ufs_extern.h in Headers */,
 				522D079B285E107E00F96211 /* dirhash.h in Headers */,
 				522D0795285E107E00F96211 /* inode.h in Headers */,
-				522D079D285E107E00F96211 /* gjournal.h in Headers */,
 				522D0794285E107E00F96211 /* quota.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		52C6F6132890D400006B8629 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				52C6F62B2890D416006B8629 /* libufs.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -313,6 +582,7 @@
 				522D075F285E106D00F96211 /* Sources */,
 				522D0760285E106D00F96211 /* Frameworks */,
 				522D0761285E106D00F96211 /* Resources */,
+				5230E8AF289420D1006B8629 /* CopyFiles */,
 			);
 			buildRules = (
 			);
@@ -322,6 +592,77 @@
 			productName = ufsX;
 			productReference = 522D0763285E106D00F96211 /* ufsX.kext */;
 			productType = "com.apple.product-type.kernel-extension";
+		};
+		52A6DD7C28663F6200C6A474 /* mount_ufs */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 52A6DD8128663F6200C6A474 /* Build configuration list for PBXNativeTarget "mount_ufs" */;
+			buildPhases = (
+				52A6DD7928663F6200C6A474 /* Sources */,
+				52A6DD7A28663F6200C6A474 /* Frameworks */,
+				52A6DD7B28663F6200C6A474 /* CopyFiles */,
+				5230E8B028942101006B8629 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = mount_ufs;
+			productName = mount_ufs;
+			productReference = 52A6DD7D28663F6200C6A474 /* mount_ufs */;
+			productType = "com.apple.product-type.tool";
+		};
+		52C6F5FE2890D1E8006B8629 /* newfs_ufs */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 52C6F6052890D1E8006B8629 /* Build configuration list for PBXNativeTarget "newfs_ufs" */;
+			buildPhases = (
+				52C6F5FB2890D1E8006B8629 /* Sources */,
+				52C6F5FC2890D1E8006B8629 /* Frameworks */,
+				52C6F5FD2890D1E8006B8629 /* CopyFiles */,
+				5230E8B128942110006B8629 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				52C6F6342890DABB006B8629 /* PBXTargetDependency */,
+			);
+			name = newfs_ufs;
+			productName = newfs_ufs;
+			productReference = 52C6F5FF2890D1E8006B8629 /* newfs_ufs */;
+			productType = "com.apple.product-type.tool";
+		};
+		52C6F6162890D400006B8629 /* libufs */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 52C6F6182890D400006B8629 /* Build configuration list for PBXNativeTarget "libufs" */;
+			buildPhases = (
+				52C6F6132890D400006B8629 /* Headers */,
+				52C6F6142890D400006B8629 /* Sources */,
+				52C6F6152890D400006B8629 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = libufs;
+			productName = libufs;
+			productReference = 52C6F6172890D400006B8629 /* liblibufs.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+		52F603BD289755B6006B8629 /* debugfs */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 52F603C4289755B6006B8629 /* Build configuration list for PBXNativeTarget "debugfs" */;
+			buildPhases = (
+				52F603BA289755B6006B8629 /* Sources */,
+				52F603BB289755B6006B8629 /* Frameworks */,
+				52F603BC289755B6006B8629 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = debugfs;
+			productName = debugfs;
+			productReference = 52F603BE289755B6006B8629 /* debugfs */;
+			productType = "com.apple.product-type.tool";
 		};
 /* End PBXNativeTarget section */
 
@@ -333,6 +674,18 @@
 				ORGANIZATIONNAME = "John Othwolo";
 				TargetAttributes = {
 					522D0762285E106D00F96211 = {
+						CreatedOnToolsVersion = 11.5;
+					};
+					52A6DD7C28663F6200C6A474 = {
+						CreatedOnToolsVersion = 11.5;
+					};
+					52C6F5FE2890D1E8006B8629 = {
+						CreatedOnToolsVersion = 11.5;
+					};
+					52C6F6162890D400006B8629 = {
+						CreatedOnToolsVersion = 11.5;
+					};
+					52F603BD289755B6006B8629 = {
 						CreatedOnToolsVersion = 11.5;
 					};
 				};
@@ -351,6 +704,10 @@
 			projectRoot = "";
 			targets = (
 				522D0762285E106D00F96211 /* ufsX */,
+				52A6DD7C28663F6200C6A474 /* mount_ufs */,
+				52C6F5FE2890D1E8006B8629 /* newfs_ufs */,
+				52C6F6162890D400006B8629 /* libufs */,
+				52F603BD289755B6006B8629 /* debugfs */,
 			);
 		};
 /* End PBXProject section */
@@ -360,6 +717,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				520346F22865C179005DFE60 /* NOTES in Resources */,
 				522D07A6285E107E00F96211 /* README.extattr in Resources */,
 				522D07A1285E107E00F96211 /* README.acls in Resources */,
 			);
@@ -372,33 +730,95 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				52224FED285F3F8700E70BD5 /* ufs_bmap.c in Sources */,
-				528536832862399500EF6651 /* ffs_subr.c in Sources */,
-				5285368D2862552D00EF6651 /* ffs_vnops.c in Sources */,
-				52224FF6285FADC800E70BD5 /* ufs_vnops.c in Sources */,
-				5285367D2861F19700EF6651 /* fsbd_mountfs.c in Sources */,
-				528536812861FC5D00EF6651 /* fbsd_devfsprivate.c in Sources */,
-				52224FF0285F557100E70BD5 /* vfs_hash.c in Sources */,
-				52224FE2285EBD0700E70BD5 /* vfs_vnops.c in Sources */,
-				52224FF2285F714F00E70BD5 /* ufs_extattr.c in Sources */,
-				52224FEC285F3F6900E70BD5 /* ufs_vfsops.c in Sources */,
-				5285367A2861E31000EF6651 /* ffs_tables.c in Sources */,
-				52224FE4285EBD5300E70BD5 /* vfs_subr.c in Sources */,
-				52EB21062861A96200BC8515 /* fbsd_cpu.c in Sources */,
-				522250012860921000E70BD5 /* vnode_if.c in Sources */,
-				52224FE6285EBEAC00E70BD5 /* ufs_debug.c in Sources */,
-				52224FDF285EACA900E70BD5 /* vn_printf.c in Sources */,
-				5285367B2861E31800EF6651 /* ffs_suspend.c in Sources */,
-				52224FE7285EC06D00E70BD5 /* ufsX.c in Sources */,
-				52224FF4285FA13400E70BD5 /* ufs_inode.c in Sources */,
-				52853687286239BF00EF6651 /* gsb_crc32.c in Sources */,
-				52224FF5285FADBE00E70BD5 /* ufs_dirhash.c in Sources */,
-				52224FDC285E9D8000E70BD5 /* ufs_lookup.c in Sources */,
-				5285368C2862466500EF6651 /* ufsX_vnops.c in Sources */,
+				528E3A012891EA56006B8629 /* ffs_vnops.c in Sources */,
+				528E39D628916A20006B8629 /* time.c in Sources */,
+				528E39DE2891B526006B8629 /* vnode_if.c in Sources */,
+				528E39D4289169D5006B8629 /* ffs_vfsops.c in Sources */,
+				528E39FF2891CFE0006B8629 /* ufs_inode.c in Sources */,
+				521203A82892E5DC006B8629 /* ffs_alloc.c in Sources */,
+				528E39C72890FA34006B8629 /* qsort.c in Sources */,
+				5212039F2891FD90006B8629 /* IOTaskQueue.cpp in Sources */,
+				528E39E72891C78A006B8629 /* ffs_suspend.c in Sources */,
+				528E39C52890FA06006B8629 /* ffs_subr.c in Sources */,
+				5230E8AE28936EE3006B8629 /* ufs_vfsops.c in Sources */,
+				521203A1289208EF006B8629 /* ufs_dirhash.c in Sources */,
+				528E3A022891EC58006B8629 /* ufsX.c in Sources */,
+				521203A92892EF13006B8629 /* ffs_snapshot.c in Sources */,
+				528E39DC2891A1DD006B8629 /* ufs_vnops.c in Sources */,
+				528E39C62890FA31006B8629 /* crc32c.c in Sources */,
+				521203AA28933DAA006B8629 /* ffs_balloc.c in Sources */,
+				528E39CB2890FC6F006B8629 /* ffs_inode_lock.cpp in Sources */,
+				528E39CD28915B6E006B8629 /* ffs_inode.c in Sources */,
+				528E39C82890FA37006B8629 /* memcchr.c in Sources */,
+				528E39E12891BE1F006B8629 /* ffs_ialloc_critical.cpp in Sources */,
+				528E39D3289169C9006B8629 /* ffs_tables.c in Sources */,
+				52230489289B7EBE006B8629 /* ufs_ihash.c in Sources */,
+				5230E8AD289366A4006B8629 /* scanc.c in Sources */,
+				528E39C92890FA3A006B8629 /* heapsort.c in Sources */,
+				528E39BD2890F793006B8629 /* ufs_subr.c in Sources */,
+				521203A228920906006B8629 /* ufs_lookup.c in Sources */,
+				528E39D228916790006B8629 /* debug.c in Sources */,
+				528E39E42891C535006B8629 /* ffs_softdep.c in Sources */,
+				528E39DA289171D9006B8629 /* vfs_vnops.c in Sources */,
+				528E39D8289171D9006B8629 /* mount_subr.c in Sources */,
+				5212039E2891F99F006B8629 /* ufs_bmap.c in Sources */,
+				528E39D1289166C5006B8629 /* malloc.c in Sources */,
+				528E39E32891C4DF006B8629 /* ffs_softdep_stubs.c in Sources */,
+				528E39DF2891BA02006B8629 /* buf.c in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		52A6DD7928663F6200C6A474 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				52A6DD8628663FDC00C6A474 /* getmntopts.c in Sources */,
+				52A6DD8028663F6200C6A474 /* mount_ufs.c in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		52C6F5FB2890D1E8006B8629 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				52C6F63F2890DFD2006B8629 /* newfs.c in Sources */,
+				52C6F6402890E121006B8629 /* disklabel.c in Sources */,
+				52C6F60F2890D1F8006B8629 /* mkfs.c in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		52C6F6142890D400006B8629 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				52C89F9B2896FAE5006B8629 /* crc32c.c in Sources */,
+				52C89F9A2896FADA006B8629 /* ffs_tables.c in Sources */,
+				521203A628921388006B8629 /* block.c in Sources */,
+				52C6F6282890D416006B8629 /* sblock.c in Sources */,
+				52C6F6292890D416006B8629 /* type.c in Sources */,
+				52C89F992896FAB7006B8629 /* ffs_subr.c in Sources */,
+				52C6F62D2890D416006B8629 /* cgroup.c in Sources */,
+				52C6F62C2890D416006B8629 /* inode.c in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		52F603BA289755B6006B8629 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				52F603C1289755B6006B8629 /* main.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		52C6F6342890DABB006B8629 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 52C6F6162890D400006B8629 /* libufs */;
+			targetProxy = 52C6F6332890DABB006B8629 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		522D0769285E106D00F96211 /* Debug */ = {
@@ -451,6 +871,10 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = (
+					"\"$(SRCROOT)/ufsX\"",
+					"\"$(SRCROOT)/",
+				);
 				MACOSX_DEPLOYMENT_TARGET = 10.15;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
@@ -503,6 +927,10 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = (
+					"\"$(SRCROOT)/ufsX\"",
+					"\"$(SRCROOT)/",
+				);
 				MACOSX_DEPLOYMENT_TARGET = 10.15;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
@@ -513,21 +941,25 @@
 		522D076C285E106D00F96211 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_WARN_DOCUMENTATION_COMMENTS = NO;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = CW9NBAZ8M7;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"DEBUG=1",
 					"$(inherited)",
 					_KERNEL,
+					"MACH_ASSERT=1",
 				);
 				HEADER_SEARCH_PATHS = "\"$(SRCROOT)/ufsX\"";
-				INFOPLIST_FILE = ufsX/Info.plist;
+				INFOPLIST_FILE = ufsX/darwin/Info.plist;
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
 				MODULE_NAME = com.otj.ufsX;
 				MODULE_START = ufsX_start;
 				MODULE_STOP = ufsX_stop;
 				MODULE_VERSION = 1.0.0d1;
-				PRODUCT_BUNDLE_IDENTIFIER = com.otj.ufsX;
+				PRODUCT_BUNDLE_IDENTIFIER = com.apple.jto.ufsX;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx10.14;
 				WRAPPER_EXTENSION = kext;
 			};
 			name = Debug;
@@ -535,18 +967,171 @@
 		522D076D285E106D00F96211 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_WARN_DOCUMENTATION_COMMENTS = NO;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = CW9NBAZ8M7;
-				GCC_PREPROCESSOR_DEFINITIONS = _KERNEL;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					_KERNEL,
+					"MACH_ASSERT=1",
+				);
 				HEADER_SEARCH_PATHS = "\"$(SRCROOT)/ufsX\"";
-				INFOPLIST_FILE = ufsX/Info.plist;
+				INFOPLIST_FILE = ufsX/darwin/Info.plist;
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
 				MODULE_NAME = com.otj.ufsX;
 				MODULE_START = ufsX_start;
 				MODULE_STOP = ufsX_stop;
 				MODULE_VERSION = 1.0.0d1;
-				PRODUCT_BUNDLE_IDENTIFIER = com.otj.ufsX;
+				PRODUCT_BUNDLE_IDENTIFIER = com.apple.jto.ufsX;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx10.14;
 				WRAPPER_EXTENSION = kext;
+			};
+			name = Release;
+		};
+		52A6DD8228663F6200C6A474 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = CW9NBAZ8M7;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				HEADER_SEARCH_PATHS = (
+					"\"$(SRCROOT)/ufsX\"",
+					"\"$(SRCROOT)/mount_ufs\"",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				USER_HEADER_SEARCH_PATHS = "";
+			};
+			name = Debug;
+		};
+		52A6DD8328663F6200C6A474 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = CW9NBAZ8M7;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GCC_PREPROCESSOR_DEFINITIONS = "";
+				HEADER_SEARCH_PATHS = (
+					"\"$(SRCROOT)/ufsX\"",
+					"\"$(SRCROOT)/mount_ufs\"",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				USER_HEADER_SEARCH_PATHS = "";
+			};
+			name = Release;
+		};
+		52C6F6032890D1E8006B8629 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_WARN_CONSTANT_CONVERSION = NO;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = CW9NBAZ8M7;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+					_LIBUFS,
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = NO;
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)/libufs\"",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		52C6F6042890D1E8006B8629 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_WARN_CONSTANT_CONVERSION = NO;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = CW9NBAZ8M7;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GCC_PREPROCESSOR_DEFINITIONS = _LIBUFS;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = NO;
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)/libufs\"",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+		52C6F6192890D400006B8629 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = CW9NBAZ8M7;
+				EXECUTABLE_PREFIX = lib;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+					_LIBUFS,
+				);
+				HEADER_SEARCH_PATHS = (
+					"\"$(SRCROOT)/ufsX\"",
+					"\"$(SRCROOT)/libufs\"",
+				);
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+			};
+			name = Debug;
+		};
+		52C6F61A2890D400006B8629 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = CW9NBAZ8M7;
+				EXECUTABLE_PREFIX = lib;
+				GCC_PREPROCESSOR_DEFINITIONS = _LIBUFS;
+				HEADER_SEARCH_PATHS = (
+					"\"$(SRCROOT)/ufsX\"",
+					"\"$(SRCROOT)/libufs\"",
+				);
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+			};
+			name = Release;
+		};
+		52F603C2289755B6006B8629 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = CW9NBAZ8M7;
+				ENABLE_HARDENED_RUNTIME = YES;
+				HEADER_SEARCH_PATHS = (
+					"\"$(SRCROOT)/libufs\"",
+					"\"$(SRCROOT)/ufsX\"",
+					"\"$(SRCROOT)/ ",
+				);
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		52F603C3289755B6006B8629 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = CW9NBAZ8M7;
+				ENABLE_HARDENED_RUNTIME = YES;
+				HEADER_SEARCH_PATHS = (
+					"\"$(SRCROOT)/libufs\"",
+					"\"$(SRCROOT)/ufsX\"",
+					"\"$(SRCROOT)/ ",
+				);
+				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;
 		};
@@ -567,6 +1152,42 @@
 			buildConfigurations = (
 				522D076C285E106D00F96211 /* Debug */,
 				522D076D285E106D00F96211 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		52A6DD8128663F6200C6A474 /* Build configuration list for PBXNativeTarget "mount_ufs" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				52A6DD8228663F6200C6A474 /* Debug */,
+				52A6DD8328663F6200C6A474 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		52C6F6052890D1E8006B8629 /* Build configuration list for PBXNativeTarget "newfs_ufs" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				52C6F6032890D1E8006B8629 /* Debug */,
+				52C6F6042890D1E8006B8629 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		52C6F6182890D400006B8629 /* Build configuration list for PBXNativeTarget "libufs" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				52C6F6192890D400006B8629 /* Debug */,
+				52C6F61A2890D400006B8629 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		52F603C4289755B6006B8629 /* Build configuration list for PBXNativeTarget "debugfs" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				52F603C2289755B6006B8629 /* Debug */,
+				52F603C3289755B6006B8629 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

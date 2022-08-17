@@ -44,7 +44,6 @@ __FBSDID("$FreeBSD$");
 #include <sys/proc.h>
 #include <sys/vnode.h>
 #include <sys/mount.h>
-#include <sys/fsctl.h>
 #include <sys/stat.h>
 #include <sys/buf.h>
 
@@ -54,12 +53,18 @@ __FBSDID("$FreeBSD$");
 #include <ufs/ufs/ufsmount.h>
 #include <ufs/ufs/ufs_extern.h>
 
-#include <freebsd/sys/compat.h>
+#include <freebsd/compat/compat.h>
 
 #include <ufs/ffs/fs.h>
 
+/* ioctls to support SEEK_HOLE SEEK_DATA */
+#define FSIOC_FIOSEEKHOLE                                         _IOWR('A', 16, off_t)
+#define FSCTL_FIOSEEKHOLE                                         IOCBASECMD(FSIOC_FIOSEEKHOLE)
+#define FSIOC_FIOSEEKDATA                                         _IOWR('A', 17, off_t)
+#define FSCTL_FIOSEEKDATA                                         IOCBASECMD(FSIOC_FIOSEEKDATA)
+
 static ufs_lbn_t lbn_count(struct ufsmount *, int);
-static int readindir(struct vnode *, ufs_lbn_t, ufs2_daddr_t, struct buf **);
+static int readindir(struct vnode *, ufs_lbn_t, ufs2_daddr_t, struct buf **, int);
 
 /*
  * Bmap converts the logical block number of a file to its physical block
@@ -67,8 +72,9 @@ static int readindir(struct vnode *, ufs_lbn_t, ufs2_daddr_t, struct buf **);
  * number to index into the array of block pointers described by the dinode.
  */
 int
-ufs_bmap(ap)
-struct vnop_blockmap_args /* {
+ufs_bmap(struct vnop_blockmap_args *ap)
+{
+ /* {
     struct vnodeop_desc *a_desc;
     vnode_t a_vp;
     off_t a_foffset;
@@ -78,8 +84,7 @@ struct vnop_blockmap_args /* {
     void *a_poff;
     int a_flags;
     vfs_context_t a_context;
-} */ *ap;
-{
+} */
 	ufs2_daddr_t blkno, lbn;
     struct inode *ip;
     struct ufsmount *ump;
@@ -102,7 +107,7 @@ struct vnop_blockmap_args /* {
     
 	error = ufs_bmaparray(ap->a_vp, lbn, &blkno, NULL, &run, NULL);
     if(error != 0)
-        return(error);
+        trace_return(error);
 
     if (ap->a_bpn)
         *ap->a_bpn = blkno;
@@ -132,15 +137,11 @@ struct vnop_blockmap_args /* {
 
     
 	*ap->a_bpn = blkno;
-	return (error);
+	trace_return (error);
 }
 
 static int
-readindir(vp, lbn, daddr, bpp)
-	struct vnode *vp;
-	ufs_lbn_t lbn;
-	ufs2_daddr_t daddr;
-	struct buf **bpp;
+readindir(struct vnode *vp, ufs_lbn_t lbn, ufs2_daddr_t daddr, struct buf **bpp, int operation)
 {
 	struct buf *bp;
 	struct mount *mp;
@@ -150,22 +151,29 @@ readindir(vp, lbn, daddr, bpp)
 	mp = vnode_mount(vp);
 	ump = VFSTOUFS(mp);
 
-	bp = buf_getblk(vp, lbn, (int)vfs_statfs(mp)->f_iosize, 0, 0, BLK_READ);
-	if (buf_fromcache(bp) == 0) {
-		KASSERT(daddr != 0, ("readindir: indirect block not in cache"));
+	bp = getblk(vp, lbn, (int)vfs_statfs(mp)->f_iosize, 0, 0, operation);
+    
+    if (bp == NULL) {
+        trace_return (ENOENT); // daddr was not set and indirect block was not in cache
+    } else if (!buf_valid(bp)) {
+		ASSERT(daddr != 0, ("readindir: indirect block not in cache"));
         
-        buf_setblkno(bp, (daddr64_t)blkptrtodb(ump, daddr));
+        buf_setlblkno(bp, blkptrtodb(ump, daddr));
         buf_setflags(bp, B_READ);
-		buf_strategy(ump->um_devvp, bp);
+        struct vnop_strategy_args args = {
+            .a_desc = &vnop_strategy_desc,
+            .a_bp = bp,
+        };
+        buf_strategy(ump->um_devvp, &args);
         
 		error = buf_biowait(bp);
 		if (error != 0) {
 			buf_brelse(bp);
-			return (error);
+			trace_return (error);
 		}
 	}
 	*bpp = bp;
-	return (0);
+	trace_return (0);
 }
 
 /*
@@ -183,13 +191,7 @@ readindir(vp, lbn, daddr, bpp)
  */
 
 int
-ufs_bmaparray(vp, bn, bnp, nbp, runp, runb)
-	struct vnode *vp;
-	ufs2_daddr_t bn;
-	ufs2_daddr_t *bnp;
-	struct buf *nbp;
-	int *runp;
-	int *runb;
+ufs_bmaparray(struct vnode *vp, ufs2_daddr_t bn, ufs2_daddr_t *bnp, struct buf *nbp, int *runp, int *runb)
 {
 	struct inode *ip;
 	struct buf *bp;
@@ -209,7 +211,6 @@ ufs_bmaparray(vp, bn, bnp, nbp, runp, runb)
     vfs_ioattr(mp, &vfsio);
  
 	if (runp) {
-        // TODO: this is for searching... mp->mnt_iosize_max
 		maxrun = vfsio.io_maxwritecnt / vfs_statfs(mp)->f_iosize - 1;
 		*runp = 0;
 	}
@@ -237,10 +238,10 @@ ufs_bmaparray(vp, bn, bnp, nbp, runp, runb)
 				return (EINVAL);
 			}
 			buf_setxflags(nbp, BX_ALTDATA);
-			return (0);
+			trace_return (0);
 		} else {
 			/* blkno out of range */
-			return (EINVAL);
+			trace_return (EINVAL);
 		}
 		/*
 		 * Since this is FFS independent code, we are out of
@@ -272,7 +273,7 @@ ufs_bmaparray(vp, bn, bnp, nbp, runp, runb)
 						--bn, ++*runb);
 			}
 		}
-		return (0);
+		trace_return (0);
 	}
 
 	/* Get disk address out of indirect block array */
@@ -286,7 +287,8 @@ ufs_bmaparray(vp, bn, bnp, nbp, runp, runb)
 		 */
 
 		metalbn = ap->in_lbn;
-		if ((daddr == 0 && !incore(vp, metalbn)) || metalbn == bn)
+        
+		if (daddr == 0 || metalbn == bn)
 			break;
         
 		/*
@@ -295,17 +297,20 @@ ufs_bmaparray(vp, bn, bnp, nbp, runp, runb)
 		 */
 		if (bp)
 			buf_brelse(bp);
-		error = readindir(vp, metalbn, daddr, &bp);
-		if (error != 0)
-			return (error);
+        
+        error = readindir(vp, metalbn, daddr, &bp, daddr == 0 ? BLK_META | BLK_ONLYVALID : BLK_META);
 
+        if (error != 0){
+            if (error == ENOENT)
+                break;
+            trace_return (error);
+        }
 		if (I_IS_UFS1(ip))
 			daddr = ((ufs1_daddr_t *)buf_dataptr(bp))[ap->in_off];
 		else
 			daddr = ((ufs2_daddr_t *)buf_dataptr(bp))[ap->in_off];
-		if ((error = UFS_CHECK_BLKNO(mp, ip->i_number, (int)daddr,
-		     (int)vfs_statfs(mp)->f_iosize)) != 0) {
-			buf_qrelse(bp);
+		if ((error = UFS_CHECK_BLKNO(mp, ip->i_number, (int)daddr, (int)vfs_statfs(mp)->f_iosize, 0)) != 0) {
+			buf_brelse(bp);
 			return (error);
 		}
 		if (I_IS_UFS1(ip)) {
@@ -345,7 +350,7 @@ ufs_bmaparray(vp, bn, bnp, nbp, runp, runb)
 		}
 	}
 	if (bp)
-		buf_qrelse(bp);
+		buf_brelse(bp);
 
 	/*
 	 * Since this is FFS independent code, we are out of scope for the
@@ -365,13 +370,11 @@ ufs_bmaparray(vp, bn, bnp, nbp, runp, runb)
 		else
 			*bnp = -1;
 	}
-	return (0);
+	trace_return (0);
 }
 
 static ufs_lbn_t
-lbn_count(ump, level)
-	struct ufsmount *ump;
-	int level;
+lbn_count(struct ufsmount *ump, int level)
 {
 	ufs_lbn_t blockcnt;
 
@@ -381,9 +384,7 @@ lbn_count(ump, level)
 }
 
 int
-ufs_bmap_seekdata(vp, offp)
-	struct vnode *vp;
-	off_t *offp;
+ufs_bmap_seekdata(struct vnode *vp, off_t *offp)
 {
 	struct buf *bp;
 	struct indir a[UFS_NIADDR + 1], *ap;
@@ -434,8 +435,8 @@ ufs_bmap_seekdata(vp, offp)
 
 		for (; daddr != 0 && num > 0; ap++, num--) {
 			if (bp != NULL)
-				buf_qrelse(bp);
-			error = readindir(vp, ap->in_lbn, daddr, &bp);
+				buf_brelse(bp);
+			error = readindir(vp, ap->in_lbn, daddr, &bp, BLK_META);
 			if (error != 0)
 				return (error);
 
@@ -467,7 +468,7 @@ ufs_bmap_seekdata(vp, offp)
 		}
 	}
 	if (bp != NULL)
-		buf_qrelse(bp);
+		buf_brelse(bp);
 	if (bn >= numblks)
 		error = ENXIO;
 	if (error == 0 && *offp < bn * bsize)
@@ -485,11 +486,7 @@ ufs_bmap_seekdata(vp, offp)
  * once with the offset into the page itself.
  */
 int
-ufs_getlbns(vp, bn, ap, nump)
-	struct vnode *vp;
-	ufs2_daddr_t bn;
-	struct indir *ap;
-	int *nump;
+ufs_getlbns(struct vnode *vp, ufs2_daddr_t bn, struct indir *ap, int *nump)
 {
 	ufs2_daddr_t blockcnt;
 	ufs_lbn_t metalbn, realbn;
@@ -571,11 +568,11 @@ ufs_bmap_seekhole(struct vnode *vp, struct vnodeop_desc *a_desc,
     off_t noff = 0;
     int error;
 
-    KASSERT(off, ("Offset is null"));
-    KASSERT(cmd == FSIOC_FIOSEEKHOLE || cmd == FSIOC_FIOSEEKDATA, ("Wrong command %lu", cmd));
+    ASSERT(off, ("Offset is null"));
+    ASSERT(cmd == FSIOC_FIOSEEKHOLE || cmd == FSIOC_FIOSEEKDATA, ("Wrong command %lu", cmd));
     
-    if (vn_lock(vp, LK_SHARED) != 0)
-        return (EBADF);
+    if (vn_lock(vp, UFS_LOCK_SHARED) != 0)
+        trace_return (EBADF);
     if (vnode_vtype(vp) != VREG) {
         error = ENOTTY;
         goto unlock;
@@ -623,5 +620,5 @@ unlock:
     VNOP_UNLOCK(vp);
     if (error == 0)
         *off = noff;
-    return (error);
+    trace_return (error);
 }

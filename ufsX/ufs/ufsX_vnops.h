@@ -11,8 +11,16 @@
 
 struct vnodeopv_entry_desc;
 
+typedef int vnop_t(void *);
 
-typedef int (*VOPFUNC)              (void *);
+extern vnop_t **ufsX_vnodeops_p;
+extern vnop_t **ufsX_fifoops_p;
+extern vnop_t **ufsX_specops_p;
+
+extern struct vnodeopv_desc ufsX_vnodeop_opv_desc;
+extern struct vnodeopv_desc ufsX_specop_opv_desc;
+extern struct vnodeopv_desc ufsX_fifoop_opv_desc;
+
 typedef int (vnop_open_t)           (struct vnop_open_args *);
 typedef int (vnop_close_t)          (struct vnop_close_args *);
 typedef int (vnop_create_t)         (struct vnop_create_args *);
@@ -31,8 +39,7 @@ typedef int (vnop_rename_t)         (struct vnop_rename_args *);
 typedef int (vnop_strategy_t)       (struct vnop_strategy_args *);
 typedef int (vnop_symlink_t)        (struct vnop_symlink_args *);
 typedef int (vnop_whiteout_t)       (struct vnop_whiteout_args *);
-typedef int (vnop_lock1_t)          (struct vnop_lock1_args *);
-typedef int (vnop_fsync_t)          (struct vnop_read_args *);
+typedef int (vnop_fsync_t)          (struct vnop_fsync_args *);
 typedef int (vnop_read_t)           (struct vnop_read_args *);
 typedef int (vnop_write_t)          (struct vnop_write_args *);
 typedef int (vnop_pagein_t)         (struct vnop_pagein_args *);
@@ -44,12 +51,8 @@ typedef int (vnop_setextattr_t)     (struct vnop_setxattr_args *);
 typedef int (vnop_listextattr_t)    (struct vnop_listxattr_args *);
 typedef int (vnop_deleteextattr_t)  (struct vnop_removexattr_args *);
 
-extern VOPFUNC *ufsX_vnodeop_p;
-extern VOPFUNC *ufsX_fifoop_p;
-extern VOPFUNC *ufsX_specop_p;
-
 // ufs vnops
-__XNU_PRIVATE_EXTERN vnop_close_t          ufs_close;
+__XNU_PRIVATE_EXTERN vnop_close_t          ufs_vnop_close;
 __XNU_PRIVATE_EXTERN vnop_create_t         ufs_create;
 __XNU_PRIVATE_EXTERN vnop_getattr_t        ufs_getattr;
 __XNU_PRIVATE_EXTERN vnop_ioctl_t          ufs_ioctl;
@@ -81,7 +84,6 @@ __XNU_PRIVATE_EXTERN vnop_close_t          ufsspec_close;
 __XNU_PRIVATE_EXTERN vnop_fsync_t          ffs_fsync;
 //__XNU_PRIVATE_EXTERN vnop_getpages_t       ffs_getpages;
 //__XNU_PRIVATE_EXTERN vnop_getpages_async_t ffs_getpages_async;
-__XNU_PRIVATE_EXTERN vnop_lock1_t          ffs_lock;
 __XNU_PRIVATE_EXTERN vnop_read_t           ffs_read;
 __XNU_PRIVATE_EXTERN vnop_write_t          ffs_write;
 __XNU_PRIVATE_EXTERN vnop_strategy_t       ffsext_strategy;
